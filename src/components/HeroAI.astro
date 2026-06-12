@@ -1,3 +1,7 @@
+---
+import { ChatInterface } from './ChatInterface';
+---
+
 <section class="bg-gradient-to-b from-amber-50/50 via-teal-50/20 to-white py-12 lg:py-20 border-b border-orange-100/30 overflow-hidden">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
     
@@ -17,20 +21,14 @@
       </div>
     </div>
 
-    <!-- Prawa strona: Eleven Labs Chat Widget -->
+    <!-- Prawa strona: Custom Chat Interface -->
     <div class="w-full max-w-lg mx-auto lg:mx-0 lg:ml-auto relative">
       <!-- Dekoracyjne tło pod czatem (Pastelowe okręgi) -->
       <div class="absolute -inset-4 bg-brandPrimary/10 blur-3xl rounded-full z-0"></div>
       <div class="absolute -top-10 -right-10 w-24 h-24 bg-brandAccent/10 rounded-full blur-xl"></div>
       
-      <div class="bg-white rounded-3xl shadow-xl border border-teal-100/50 w-full overflow-hidden relative z-10 transform transition-all hover:scale-[1.01]">
-        <!-- Eleven Labs Conversation Widget (Customized) -->
-        <iframe 
-          src="https://elevenlabs.io/app/talk-to?agent_id=agent_2501ktwm893ffmwt20a3v29eg57q&branch_id=agtbrch_6301ktwm89vbfnwr03b43m1yxq1d"
-          class="w-full h-[500px] border-0"
-          allow="microphone; clipboard-write"
-          style="border-radius: 1.5rem;"
-        ></iframe>
+      <div class="relative z-10 transform transition-all hover:scale-[1.01]">
+        <ChatInterface client:load />
       </div>
     </div>
   </div>
