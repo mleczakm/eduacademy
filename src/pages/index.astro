@@ -1,0 +1,151 @@
+---
+import Layout from '../layouts/Layout.astro';
+import HeroAI from '../components/HeroAI.astro';
+import CourseCard from '../components/CourseCard.astro';
+import { getCollection } from 'astro:content';
+
+const allCourses = await getCollection('courses');
+---
+
+<Layout title="Future Edu Academy">
+  <HeroAI />
+
+  <!-- Główna Sekcja Katalogu -->
+  <section id="katalog" class="py-12 md:py-20 bg-white flex-grow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <span class="text-brandPrimary font-bold text-sm tracking-wider uppercase bg-teal-50 px-3 py-1 rounded-full">Nasza Oferta</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-800 mt-3 mb-4">Przeglądaj wszystkie warsztaty</h2>
+        <p class="text-slate-500 max-w-xl mx-auto text-base">Wybierz interesującą Cię grupę docelową lub wyszukaj konkretne zajęcia.</p>
+      </div>
+
+      <!-- Wyszukiwarka -->
+      <div class="max-w-3xl mx-auto mb-10 relative">
+        <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+        <input type="text" id="search-input" class="block w-full pl-12 pr-4 py-4 rounded-3xl border-2 border-slate-100 bg-stone-50/50 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-0 focus:border-brandPrimary focus:bg-white text-base transition shadow-sm" placeholder="Wpisz nazwę warsztatu, np. sensoryczne, kodowanie, pamięć...">
+      </div>
+
+      <!-- System zakładek / filtrów -->
+      <div class="flex flex-wrap justify-center gap-2.5 mb-12">
+        <button class="filter-btn active bg-brandPrimary text-white px-6 py-2.5 rounded-2xl font-bold text-sm transition shadow-md shadow-teal-900/10" data-filter="all">
+          Wszystkie zajęcia
+        </button>
+        <button class="filter-btn bg-stone-50 text-slate-600 hover:bg-teal-50 hover:text-brandPrimary px-6 py-2.5 rounded-2xl font-bold text-sm transition" data-filter="dzieci">
+          👶 Dla dzieci
+        </button>
+        <button class="filter-btn bg-stone-50 text-slate-600 hover:bg-teal-50 hover:text-brandPrimary px-6 py-2.5 rounded-2xl font-bold text-sm transition" data-filter="nauczyciele">
+          👩‍🏫 Dla nauczycieli
+        </button>
+        <button class="filter-btn bg-stone-50 text-slate-600 hover:bg-teal-50 hover:text-brandPrimary px-6 py-2.5 rounded-2xl font-bold text-sm transition" data-filter="seniorzy">
+          🧓 Dla seniorów
+        </button>
+      </div>
+
+      <!-- Komunikat braku wyników -->
+      <div id="no-results" class="hidden text-center py-16">
+        <span class="text-5xl block mb-4">🔍</span>
+        <h3 class="text-xl font-bold text-slate-800">Nie znaleźliśmy takich warsztatów</h3>
+        <p class="text-slate-500 mt-1">Spróbuj wpisać inną frazę lub zmień filtr kategorii.</p>
+        <button id="reset-filters" class="mt-4 text-brandPrimary hover:text-brandPrimaryDark font-bold transition">Wyczyść wyszukiwanie</button>
+      </div>
+
+      <!-- Siatka kart ze szkoleniami -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="course-grid">
+        {allCourses.map(course => (
+          <CourseCard course={course} />
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const courseCards = document.querySelectorAll('.course-card');
+    const searchInput = document.getElementById('search-input');
+    const noResultsMsg = document.getElementById('no-results');
+    const resetBtn = document.getElementById('reset-filters');
+    const courseGrid = document.getElementById('course-grid');
+  
+    let currentCategory = 'all';
+    let currentSearchTerm = '';
+
+    function filterCourses() {
+      let visibleCount = 0;
+
+      courseCards.forEach((card) => {
+        const title = card.querySelector('h3').innerText.toLowerCase();
+        const desc = card.querySelector('p').innerText.toLowerCase();
+        const category = card.getAttribute('data-category');
+  
+        const matchesSearch = title.includes(currentSearchTerm) || desc.includes(currentSearchTerm);
+        const matchesCategory = currentCategory === 'all' || category === currentCategory;
+
+        if (matchesSearch && matchesCategory) {
+          card.classList.remove('hidden-card');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden-card');
+        }
+      });
+
+      if (noResultsMsg && courseGrid) {
+        if (visibleCount === 0) {
+          noResultsMsg.classList.remove('hidden');
+          courseGrid.classList.add('hidden');
+        } else {
+          noResultsMsg.classList.add('hidden');
+          courseGrid.classList.remove('hidden');
+        }
+      }
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        currentSearchTerm = e.target.value.toLowerCase().trim();
+        filterCourses();
+      });
+    }
+
+    filterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach((b) => {
+          b.classList.remove(
+            'bg-brandPrimary',
+            'text-white',
+            'shadow-md',
+            'shadow-teal-900/10',
+            'active'
+          );
+          b.classList.add('bg-stone-50', 'text-slate-600');
+        });
+  
+        btn.classList.remove('bg-stone-50', 'text-slate-600');
+        btn.classList.add(
+          'bg-brandPrimary',
+          'text-white',
+          'shadow-md',
+          'shadow-teal-900/10',
+          'active'
+        );
+
+        currentCategory = btn.getAttribute('data-filter');
+        filterCourses();
+      });
+    });
+  
+    if (resetBtn && searchInput) {
+      resetBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        currentSearchTerm = '';
+        const defaultFilter = document.querySelector('.filter-btn[data-filter="all"]');
+        if (defaultFilter) {
+          defaultFilter.click();
+        }
+      });
+    }
+  });
+</script>

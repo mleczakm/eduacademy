@@ -1,0 +1,133 @@
+<section class="bg-gradient-to-b from-amber-50/50 via-teal-50/20 to-white py-12 lg:py-20 border-b border-orange-100/30 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    
+    <!-- Lewa strona: Tekst powitalny -->
+    <div class="flex flex-col items-start text-left z-10">
+      <span class="bg-brandAccentLight text-brandAccent font-bold tracking-wider uppercase text-xs px-3.5 py-1.5 rounded-full mb-4">Odkryj radość z rozwoju</span>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-800 leading-tight mb-6">
+        Miejsce twórczych <br class="hidden md:block" />warsztatów i <span class="text-brandPrimary">edukacji</span>
+      </h1>
+      <p class="text-lg md:text-xl text-slate-600 max-w-lg mb-8 leading-relaxed">
+        Stworzyliśmy przestrzeń rozwoju dla każdego wieku. Porozmawiaj z naszym asystentem, który pomoże dobrać idealne zajęcia dla Ciebie lub Twoich bliskich.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a href="#katalog" class="px-8 py-3.5 bg-brandPrimary hover:bg-brandPrimaryDark text-white font-bold rounded-2xl shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">
+          Przejdź do katalogu
+        </a>
+      </div>
+    </div>
+
+    <!-- Prawa strona: Główny interfejs czatu -->
+    <div class="w-full max-w-lg mx-auto lg:mx-0 lg:ml-auto relative">
+      <!-- Dekoracyjne tło pod czatem (Pastelowe okręgi) -->
+      <div class="absolute -inset-4 bg-brandPrimary/10 blur-3xl rounded-full z-0"></div>
+      <div class="absolute -top-10 -right-10 w-24 h-24 bg-brandAccent/10 rounded-full blur-xl"></div>
+      
+      <div class="bg-white rounded-3xl shadow-xl border border-teal-100/50 w-full overflow-hidden flex flex-col relative z-10 transform transition-all hover:scale-[1.01]">
+        <!-- Header Czatu -->
+        <div class="bg-brandPrimary text-white px-5 py-4 flex justify-between items-center shadow-sm z-10">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center text-xl">
+              🐨
+            </div>
+            <div>
+              <h4 class="font-bold text-base">Asystent Akademii</h4>
+              <span class="text-xs text-teal-100 flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-green-400 inline-block"></span> Chętnie doradzę
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Wiadomości -->
+        <div id="chat-output" class="h-96 overflow-y-auto p-5 space-y-5 bg-stone-50/50 text-sm">
+          <div class="flex items-start gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-teal-100 flex-shrink-0 flex items-center justify-center text-lg mt-0.5">
+              🐨
+            </div>
+            <div class="bg-white border border-slate-100 text-slate-700 p-3.5 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] leading-relaxed">
+              Cześć! Pomagam dobrać najciekawsze zajęcia i warsztaty w Future Edu Academy. Dla kogo dziś szukasz inspiracji? 😊
+            </div>
+          </div>
+        </div>
+        
+        <!-- Input -->
+        <div class="p-4 border-t border-slate-100 bg-white flex gap-2">
+          <input type="text" id="ai-input" placeholder="Opisz swoje potrzeby..." class="flex-grow bg-slate-50 border border-transparent rounded-2xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brandPrimary focus:bg-white transition" />
+          <button id="ai-submit" class="bg-brandPrimary hover:bg-brandPrimaryDark text-white p-3 rounded-2xl transition flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Logika Chrome window.ai
+  document.getElementById('ai-submit').addEventListener('click', async () => {
+    const input = document.getElementById('ai-input');
+    const output = document.getElementById('chat-output');
+    const userText = input.value;
+    if (!userText) return;
+
+    // Wyświetl wiadomość usera
+    output.innerHTML += `
+      <div class="flex items-start gap-2.5 flex-row-reverse">
+        <div class="w-8 h-8 rounded-xl bg-amber-100 flex-shrink-0 flex items-center justify-center text-lg mt-0.5">
+          👩
+        </div>
+        <div class="bg-brandPrimary text-white p-3.5 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] leading-relaxed">
+          ${userText}
+        </div>
+      </div>
+    `;
+    input.value = '';
+
+    try {
+      if ('ai' in window && 'languageModel' in window.ai) {
+        // Inicjalizacja lokalnego modelu przeglądarki Chrome
+        const session = await window.ai.languageModel.create({
+          systemPrompt:
+            'Jesteś ciepłym asystentem Future Edu Academy. Mamy szkolenia dla dzieci (np. sensoryka), nauczycieli (metodyka) i seniorów (trening pamięci). Odpowiadaj maksymalnie w 2 zdaniach, sympatycznym tonem.',
+        });
+        const response = await session.prompt(userText);
+  
+        output.innerHTML += `
+          <div class="flex items-start gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-teal-100 flex-shrink-0 flex items-center justify-center text-lg mt-0.5">
+              🐨
+            </div>
+            <div class="bg-white border border-slate-100 text-slate-700 p-3.5 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] leading-relaxed">
+              ${response}
+            </div>
+          </div>
+        `;
+      } else {
+        output.innerHTML += `
+          <div class="flex items-start gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-teal-100 flex-shrink-0 flex items-center justify-center text-lg mt-0.5">
+              🐨
+            </div>
+            <div class="bg-white border border-slate-100 text-amber-600 p-3.5 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] leading-relaxed">
+              <em>Twój przeglądarka nie obsługuje jeszcze wbudowanego AI (window.ai). Przejrzyj nasz katalog!</em>
+            </div>
+          </div>
+        `;
+      }
+    } catch (e) {
+      console.error(e);
+      output.innerHTML += `
+        <div class="flex items-start gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-teal-100 flex-shrink-0 flex items-center justify-center text-lg mt-0.5">
+            🐨
+          </div>
+          <div class="bg-white border border-slate-100 text-red-500 p-3.5 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] leading-relaxed">
+            <em>Błąd połączenia z modelem.</em>
+          </div>
+        </div>
+      `;
+    }
+    output.scrollTop = output.scrollHeight;
+  });
+</script>

@@ -1,0 +1,37 @@
+{
+  "name": "eduacademy",
+  "version": "1.0.0",
+  "description": "Future Edu Academy - Jamstack education platform",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "lint": "eslint . --ext .js,.ts,.astro",
+    "lint:fix": "eslint . --ext .js,.ts,.astro --fix",
+    "format": "prettier --write \"**/*.{js,ts,astro,css,md,json}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,astro,css,md,json}\""
+  },
+  "bugs": {
+    "url": "https://github.com/mleczakm/eduacademy/issues"
+  },
+  "homepage": "https://github.com/mleczakm/eduacademy#readme",
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/tailwind": "^6.0.2",
+    "astro": "^5.18.2",
+    "decap-cms": "^3.14.0",
+    "tailwindcss": "^3.4.19"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-astro": "^1.7.0",
+    "eslint-plugin-prettier": "^5.5.6",
+    "prettier": "^3.8.4"
+  }
+}

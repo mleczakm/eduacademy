@@ -1,0 +1,46 @@
+---
+interface Props {
+  course: {
+    data: {
+      title: string;
+      category: string;
+      priceFrom: string;
+      image?: string;
+    };
+    slug: string;
+  };
+}
+
+const { course } = Astro.props;
+
+const categoryEmoji = course.data.category === 'Dla dzieci' ? '👶' 
+  : course.data.category === 'Dla nauczycieli' ? '👩‍🏫' 
+  : '🧓';
+
+const categoryClass = course.data.category === 'Dla dzieci' ? 'bg-teal-50' 
+  : course.data.category === 'Dla nauczycieli' ? 'bg-amber-50/50' 
+  : 'bg-emerald-50/40';
+
+const emoji = course.data.image || (course.data.category === 'Dla dzieci' ? '🎨' 
+  : course.data.category === 'Dla nauczycieli' ? '📚' 
+  : '🧠');
+---
+
+<div class="course-card bg-white rounded-3xl border border-teal-50 overflow-hidden flex flex-col shadow-sm" data-category={course.data.category === 'Dla dzieci' ? 'dzieci' : course.data.category === 'Dla nauczycieli' ? 'nauczyciele' : 'seniorzy'}>
+  <div class={`h-44 ${categoryClass} flex items-center justify-center relative`}>
+    <span class="absolute top-4 left-4 bg-white text-brandPrimary text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">{categoryEmoji} {course.data.category}</span>
+    <span class="text-5xl">{emoji}</span>
+  </div>
+  <div class="p-6 flex-grow flex flex-col">
+    <h3 class="text-xl font-bold text-slate-800 mb-2">{course.data.title}</h3>
+    <p class="text-slate-500 text-sm mb-6 flex-grow">Kliknij "Szczegóły" aby zobaczyć pełny opis programu.</p>
+    
+    <div class="mt-auto border-t border-slate-100 pt-5 flex items-center justify-between">
+      <span class="text-2xl font-bold text-slate-800">{course.data.priceFrom}</span>
+      <div class="flex gap-2">
+        <a href={`/szkolenia/${course.slug}`} class="text-brandPrimary hover:text-brandPrimaryDark text-sm font-bold py-2 px-3 rounded-xl transition">Szczegóły</a>
+        <a href={`mailto:zapisy@futureedu.pl?subject=Zapisy: ${course.data.title}`} class="bg-brandAccent hover:bg-amber-600 text-white text-sm font-bold py-2 px-4 rounded-xl transition shadow-sm">Zapisz się</a>
+      </div>
+    </div>
+  </div>
+</div>
