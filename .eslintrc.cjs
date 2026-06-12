@@ -4,6 +4,7 @@ module.exports = {
     es2021: true,
     node: true,
   },
+  ignorePatterns: ['dist/**', '.astro/**', 'node_modules/**'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
