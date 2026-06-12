@@ -1,9 +1,9 @@
 ---
-title: "Cyfrowy senior - podstawy smartfona"
-category: "Dla seniorów"
-tags: ["technologia", "smartfon", "senior"]
-priceFrom: "90,00 zł"
-image: "📱"
+title: 'Cyfrowy senior - podstawy smartfona'
+category: 'Dla seniorów'
+tags: ['technologia', 'smartfon', 'senior']
+priceFrom: '90,00 zł'
+image: '📱'
 ---
 
 Cierpliwy i praktyczny kurs krok po kroku: obsługa aplikacji, bezpieczeństwo w sieci i kontakt z rodziną.

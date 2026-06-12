@@ -1,9 +1,9 @@
 ---
-title: "Robotyka i kodowanie dla najmłodszych"
-category: "Dla dzieci"
-tags: ["robotyka", "kodowanie", "STEM"]
-priceFrom: "180,00 zł"
-image: "🤖"
+title: 'Robotyka i kodowanie dla najmłodszych'
+category: 'Dla dzieci'
+tags: ['robotyka', 'kodowanie', 'STEM']
+priceFrom: '180,00 zł'
+image: '🤖'
 ---
 
 Pierwsze kroki w świecie algorytmów przy użyciu intuicyjnych klocków Lego oraz robotów edukacyjnych.

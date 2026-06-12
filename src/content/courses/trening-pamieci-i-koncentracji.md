@@ -1,9 +1,9 @@
 ---
-title: "Trening pamięci i koncentracji"
-category: "Dla seniorów"
-tags: ["pamięć", "koncentracja", "senior"]
-priceFrom: "80,00 zł"
-image: "🧠"
+title: 'Trening pamięci i koncentracji'
+category: 'Dla seniorów'
+tags: ['pamięć', 'koncentracja', 'senior']
+priceFrom: '80,00 zł'
+image: '🧠'
 ---
 
 Aktywne ćwiczenia umysłowe, mnemotechniki oraz gry planszowe wspierające neuroplastyczność mózgu u seniorów.

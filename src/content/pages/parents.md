@@ -1,5 +1,6 @@
 ---
-title: "Dla rodzica"
+title: 'Dla rodzica'
+slug: 'dla-rodzica'
 ---
 
 # Dla rodzica
@@ -9,12 +10,15 @@ W Future Edu Academy rozumiemy wyzwania rodzicielstwa. Stworzyliśmy przestrzeń
 ## Dlaczego warto nam zaufać?
 
 ### Doświadczenie
+
 Nasi instruktorzy to specjaliści z wieloletnim doświadczeniem w pracy z dziećmi.
 
 ### Bezpieczeństwo
+
 Dbamy o bezpieczeństwo na każdym etapie - od materiałów po metody pracy.
 
 ### Małe grupy
+
 Pracujemy w małych grupach, co pozwala na indywidualne podejście do każdego dziecka.
 
 ## Jak przygotować dziecko?

@@ -1,9 +1,9 @@
 ---
-title: "Szkolenie metodyczne dla pedagogów"
-category: "Dla nauczycieli"
-tags: ["metodyka", "edukacja", "przedszkole"]
-priceFrom: "250,00 zł"
-image: "📚"
+title: 'Szkolenie metodyczne dla pedagogów'
+category: 'Dla nauczycieli'
+tags: ['metodyka', 'edukacja', 'przedszkole']
+priceFrom: '250,00 zł'
+image: '📚'
 ---
 
 Nowoczesne i angażujące formy prowadzenia zajęć grupowych w przedszkolach i klasach I-III.

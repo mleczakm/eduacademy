@@ -1,9 +1,9 @@
 ---
-title: "Przeciwdziałanie wypaleniu zawodowemu"
-category: "Dla nauczycieli"
-tags: ["psychologia", "wypalenie", "welfare"]
-priceFrom: "199,00 zł"
-image: "🧘‍♀️"
+title: 'Przeciwdziałanie wypaleniu zawodowemu'
+category: 'Dla nauczycieli'
+tags: ['psychologia', 'wypalenie', 'welfare']
+priceFrom: '199,00 zł'
+image: '🧘‍♀️'
 ---
 
 Praktyczne warsztaty psychologiczne radzenia sobie ze stresem i higieny pracy w zawodzie nauczyciela.

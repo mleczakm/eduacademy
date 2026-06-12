@@ -6,6 +6,11 @@ interface Props {
 }
 
 const { title } = Astro.props;
+const currentPath = Astro.url.pathname;
+const isHomepage = currentPath === '/';
+const isAboutPage = currentPath === '/o-nas';
+const isContactPage = currentPath === '/kontakt';
+const isCoursesPage = currentPath.startsWith('/szkolenia');
 ---
 
 <!DOCTYPE html>
@@ -30,9 +35,9 @@ const { title } = Astro.props;
           
           <!-- Desktop Menu -->
           <nav class="hidden md:flex space-x-8">
-            <a href="#katalog" class="text-brandPrimary font-semibold transition border-b-2 border-brandPrimary pb-1">Katalog Warsztatów</a>
-            <a href="/o-nas" class="text-slate-600 hover:text-brandPrimary font-medium transition pb-1">O nas</a>
-            <a href="/kontakt" class="text-slate-600 hover:text-brandPrimary font-medium transition pb-1">Kontakt</a>
+            <a href={isHomepage ? '#katalog' : '/'} class={isHomepage || isCoursesPage ? 'text-brandPrimary font-semibold transition border-b-2 border-brandPrimary pb-1' : 'text-slate-600 hover:text-brandPrimary font-medium transition pb-1'}>Katalog Warsztatów</a>
+            <a href="/o-nas" class={isAboutPage ? 'text-brandPrimary font-semibold transition border-b-2 border-brandPrimary pb-1' : 'text-slate-600 hover:text-brandPrimary font-medium transition pb-1'}>O nas</a>
+            <a href="/kontakt" class={isContactPage ? 'text-brandPrimary font-semibold transition border-b-2 border-brandPrimary pb-1' : 'text-slate-600 hover:text-brandPrimary font-medium transition pb-1'}>Kontakt</a>
           </nav>
 
           <!-- Mobile Menu Button -->

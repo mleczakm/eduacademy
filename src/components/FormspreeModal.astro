@@ -1,19 +1,24 @@
 ---
 interface Props {
-  courseTitle: string;
+  courseTitle?: string;
 }
 
 const { courseTitle } = Astro.props;
+
+const defaultMessage = courseTitle
+  ? `Jestem zainteresowana/-y kursem "${courseTitle}", proszę o `
+  : '';
+const modalTitle = courseTitle ? 'Zapisz się na zajęcia' : 'Formularz kontaktowy';
 ---
 
 <div id="enroll-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center">
   <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
-    <h3 class="text-2xl font-bold text-slate-800 mb-4 font-quicksand">Zapisz się na zajęcia</h3>
+    <h3 class="text-2xl font-bold text-slate-800 mb-4 font-quicksand">{modalTitle}</h3>
 
     <!-- Integracja Formspree -->
     <form action="https://formspree.io/f/TWOJ_ID_FORMSPREE" method="POST" class="space-y-4">
       <!-- Ukryte pole z nazwą kursu (automatyczne przypisanie) -->
-      <input type="hidden" name="Szkolenie" value={courseTitle} />
+      {courseTitle && <input type="hidden" name="Szkolenie" value={courseTitle} />}
       
       <div>
         <label class="block text-sm font-bold text-slate-600 mb-1">Imię i nazwisko</label>
@@ -25,7 +30,7 @@ const { courseTitle } = Astro.props;
       </div>
       <div>
         <label class="block text-sm font-bold text-slate-600 mb-1">Wiadomość / Pytania</label>
-        <textarea name="message" rows="3" class="w-full bg-stone-50 border-2 border-teal-50 rounded-2xl px-4 py-3 focus:outline-none focus:border-teal-400"></textarea>
+        <textarea name="message" rows="3" class="w-full bg-stone-50 border-2 border-teal-50 rounded-2xl px-4 py-3 focus:outline-none focus:border-teal-400" placeholder={defaultMessage}>{defaultMessage}</textarea>
       </div>
       
       <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 rounded-2xl transition shadow-md">

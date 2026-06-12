@@ -1,9 +1,9 @@
 ---
-title: "Zajęcia sensoryczne dla maluchów"
-category: "Dla dzieci"
-tags: ["sensoryka", "rozwój", "zabawa"]
-priceFrom: "120,00 zł"
-image: "🎨"
+title: 'Zajęcia sensoryczne dla maluchów'
+category: 'Dla dzieci'
+tags: ['sensoryka', 'rozwój', 'zabawa']
+priceFrom: '120,00 zł'
+image: '🎨'
 ---
 
 Wielozmysłowe poznawanie świata przez bezpieczną zabawę materiałami sypkimi, plastycznymi i zapachowymi.

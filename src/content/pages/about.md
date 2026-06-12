@@ -1,5 +1,6 @@
 ---
-title: "O nas"
+title: 'O nas'
+slug: 'o-nas'
 ---
 
 # O Future Edu Academy
