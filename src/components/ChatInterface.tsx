@@ -9,11 +9,27 @@ interface Message {
 const ChatContent = () => {
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
   
+  // Load messages from localStorage on mount
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('chat_history');
+    if (savedMessages) {
+      try {
+        setLocalMessages(JSON.parse(savedMessages));
+      } catch (e) {
+        console.error('Failed to parse chat history:', e);
+      }
+    }
+  }, []);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (localMessages.length > 0) {
+      localStorage.setItem('chat_history', JSON.stringify(localMessages));
+    }
+  }, [localMessages]);
+  
   const conversation = useConversation({
-    onConnect: () => console.log('Connected to ElevenLabs'),
-    onDisconnect: () => console.log('Disconnected from ElevenLabs'),
     onMessage: (message) => {
-      console.log('Received message:', message);
       // Only add agent messages here, user messages are added locally in handleSubmit
       if (message.role === 'agent') {
         setLocalMessages(prev => [...prev, {
@@ -22,20 +38,54 @@ const ChatContent = () => {
         }]);
       }
     },
-    onError: (error) => console.error('ElevenLabs Error:', error),
     textOnly: true,
   });
   const { sendUserMessage, status } = conversation;
 
+  const isStarting = useRef(false);
+  const lastAttempt = useRef<number>(0);
+
   useEffect(() => {
-    if (status === 'disconnected') {
-      console.log('Starting session...');
-      conversation.startSession({
-        agentId: "agent_2501ktwm893ffmwt20a3v29eg57q",
-        textOnly: true,
-      });
+    console.log('Conversation status changed:', status);
+    if (status === 'disconnected' && !isStarting.current) {
+      // Check for last attempt time to prevent rapid retry loops
+      const now = Date.now();
+      if (now - lastAttempt.current < 3000) {
+        console.log('Preventing rapid reconnection attempt');
+        return;
+      }
+      lastAttempt.current = now;
+
+      console.log('Attempting to start session...');
+      isStarting.current = true;
+      try {
+        conversation.startSession({
+          agentId: "agent_2501ktwm893ffmwt20a3v29eg57q",
+          textOnly: true,
+        });
+        // Added a safety timeout to reset isStarting if it gets stuck in 'connecting' for too long
+        setTimeout(() => {
+          if (isStarting.current && (status === 'disconnected' || status === 'connecting')) {
+            console.log('Session start timed out, resetting guard');
+            isStarting.current = false;
+          }
+        }, 10000);
+      } catch (err) {
+        console.error("Failed to auto-start session:", err);
+        isStarting.current = false;
+      }
+    } else if (status === 'connected') {
+      console.log('Session connected successfully');
+      isStarting.current = false;
+    } else if (status === 'connecting') {
+      console.log('Session is connecting...');
+      isStarting.current = true;
+    } else if (status === 'disconnecting') {
+      console.log('Session is disconnecting...');
+      // Ensure we don't try to start a new session while disconnecting
+      isStarting.current = true;
     }
-  }, [status, conversation]);
+  }, [status]);
   
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -55,6 +105,11 @@ const ChatContent = () => {
     scrollToBottom();
   }, [localMessages]);
 
+  const statusRef = useRef(status);
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -62,16 +117,22 @@ const ChatContent = () => {
     if (!inputValue.trim()) return;
 
     try {
-      if (status === 'disconnected') {
-        console.log('Starting session (from handleSubmit)...');
-        await conversation.startSession({
+      // If we're disconnected, try to start session and then send message
+      if (statusRef.current === 'disconnected') {
+        conversation.startSession({
           agentId: "agent_2501ktwm893ffmwt20a3v29eg57q",
           textOnly: true,
         });
+
+        // Wait for connection to establish
+        let attempts = 0;
+        while (attempts < 25 && statusRef.current !== 'connected') { // max 5 seconds
+          await new Promise(resolve => setTimeout(resolve, 200));
+          attempts++;
+        }
       }
       
-      if (sendUserMessage) {
-        console.log('Sending message:', inputValue);
+      if (statusRef.current === 'connected' && sendUserMessage) {
         const textToSend = inputValue;
         setInputValue('');
         
@@ -83,7 +144,7 @@ const ChatContent = () => {
 
         await sendUserMessage(textToSend);
       } else {
-        console.warn('sendUserMessage is not available');
+        console.error('Cannot send message. Current status:', statusRef.current);
       }
     } catch (error) {
       console.error('Error in handleSubmit:', error);
