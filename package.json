@@ -42,6 +42,7 @@
     "typescript": "^5.8.2"
   },
   "overrides": {
-    "trim": "^0.0.3"
+    "trim": "^0.0.3",
+    "astro": "$astro"
   }
 }
