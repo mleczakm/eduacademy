@@ -18,15 +18,15 @@ export async function GET() {
     content += `- **Kategoria:** ${course.data.category}\n`;
     content += `- **Cena:** ${course.data.priceFrom}\n`;
     content += `- **Tagi:** ${course.data.tags.join(', ')}\n`;
-    
+
     if (course.data.image) {
       content += `- **Ikona/Obraz:** ${course.data.image}\n`;
     }
-    
+
     if (course.data.pdfFile) {
       content += `- **Załącznik PDF:** ${course.data.pdfFile}\n`;
     }
-    
+
     content += `- **Opis:** Szczegółowy opis programu dostępny na stronie szkolenia.\n\n`;
   }
 
