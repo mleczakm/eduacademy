@@ -11,7 +11,10 @@ const defaultMessage = courseTitle
 const modalTitle = courseTitle ? 'Zapisz się na zajęcia' : 'Formularz kontaktowy';
 ---
 
-<div id="enroll-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center">
+<div
+  id="enroll-modal"
+  class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center"
+>
   <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
     <h3 class="text-2xl font-bold text-slate-800 mb-4 font-quicksand">{modalTitle}</h3>
 
@@ -19,25 +22,46 @@ const modalTitle = courseTitle ? 'Zapisz się na zajęcia' : 'Formularz kontakto
     <form action="https://formspree.io/f/TWOJ_ID_FORMSPREE" method="POST" class="space-y-4">
       <!-- Ukryte pole z nazwą kursu (automatyczne przypisanie) -->
       {courseTitle && <input type="hidden" name="Szkolenie" value={courseTitle} />}
-      
+
       <div>
         <label class="block text-sm font-bold text-slate-600 mb-1">Imię i nazwisko</label>
-        <input type="text" name="name" required class="w-full bg-stone-50 border-2 border-teal-50 rounded-2xl px-4 py-3 focus:outline-none focus:border-teal-400">
+        <input
+          type="text"
+          name="name"
+          required
+          class="w-full bg-stone-50 border-2 border-teal-50 rounded-2xl px-4 py-3 focus:outline-none focus:border-teal-400"
+        />
       </div>
       <div>
         <label class="block text-sm font-bold text-slate-600 mb-1">Adres E-mail</label>
-        <input type="email" name="email" required class="w-full bg-stone-50 border-2 border-teal-50 rounded-2xl px-4 py-3 focus:outline-none focus:border-teal-400">
+        <input
+          type="email"
+          name="email"
+          required
+          class="w-full bg-stone-50 border-2 border-teal-50 rounded-2xl px-4 py-3 focus:outline-none focus:border-teal-400"
+        />
       </div>
       <div>
         <label class="block text-sm font-bold text-slate-600 mb-1">Wiadomość / Pytania</label>
-        <textarea name="message" rows="3" class="w-full bg-stone-50 border-2 border-teal-50 rounded-2xl px-4 py-3 focus:outline-none focus:border-teal-400" placeholder={defaultMessage}>{defaultMessage}</textarea>
+        <textarea
+          name="message"
+          rows="3"
+          class="w-full bg-stone-50 border-2 border-teal-50 rounded-2xl px-4 py-3 focus:outline-none focus:border-teal-400"
+          placeholder={defaultMessage}>{defaultMessage}</textarea
+        >
       </div>
-      
-      <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 rounded-2xl transition shadow-md">
+
+      <button
+        type="submit"
+        class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 rounded-2xl transition shadow-md"
+      >
         Wyślij zgłoszenie
       </button>
     </form>
-    <button onclick="document.getElementById('enroll-modal').classList.add('hidden')" class="mt-4 text-slate-400 hover:text-slate-600 text-sm font-bold w-full text-center">
+    <button
+      onclick="document.getElementById('enroll-modal').classList.add('hidden')"
+      class="mt-4 text-slate-400 hover:text-slate-600 text-sm font-bold w-full text-center"
+    >
       Anuluj
     </button>
   </div>

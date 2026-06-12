@@ -5,7 +5,7 @@ import FormspreeModal from '../components/FormspreeModal.astro';
 
 export async function getStaticPaths() {
   const pages = await getCollection('pages');
-  return pages.map(page => ({
+  return pages.map((page) => ({
     params: { slug: page.data.slug },
     props: { page },
   }));
@@ -19,23 +19,43 @@ const isContactPage = page.data.slug === 'kontakt';
 <Layout title={page.data.title}>
   <section class="py-12 md:py-20 bg-brandBg flex-grow">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <a href="/" class="flex items-center text-slate-500 hover:text-brandPrimary transition mb-8 group font-bold">
-        <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      <a
+        href="/"
+        class="flex items-center text-slate-500 hover:text-brandPrimary transition mb-8 group font-bold"
+      >
+        <svg
+          class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg
+        >
         Wróć do strony głównej
       </a>
 
-      <div class="bg-white rounded-3xl border border-teal-100/50 overflow-hidden shadow-lg p-6 md:p-10">
+      <div
+        class="bg-white rounded-3xl border border-teal-100/50 overflow-hidden shadow-lg p-6 md:p-10"
+      >
         <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-8">{page.data.title}</h1>
         <div class="prose prose-slate max-w-none text-slate-600">
           <Content />
         </div>
-        {isContactPage && (
-          <div class="mt-8 pt-8 border-t border-slate-100">
-            <button onclick="document.getElementById('enroll-modal').classList.remove('hidden')" class="w-full bg-brandAccent hover:bg-amber-600 text-white font-bold py-4 rounded-2xl transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-lg">
-              Wyślij nam wiadomość
-            </button>
-          </div>
-        )}
+        {
+          isContactPage && (
+            <div class="mt-8 pt-8 border-t border-slate-100">
+              <button
+                onclick="document.getElementById('enroll-modal').classList.remove('hidden')"
+                class="w-full bg-brandAccent hover:bg-amber-600 text-white font-bold py-4 rounded-2xl transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-lg"
+              >
+                Wyślij nam wiadomość
+              </button>
+            </div>
+          )
+        }
       </div>
     </div>
   </section>

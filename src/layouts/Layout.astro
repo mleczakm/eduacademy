@@ -13,16 +13,21 @@ const isContactPage = currentPath === '/kontakt';
 const isCoursesPage = currentPath.startsWith('/szkolenia');
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title} - Future Edu Academy</title>
-    <meta name="description" content="Future Edu Academy - Warsztaty i szkolenia dla dzieci, nauczycieli i seniorów" />
+    <meta
+      name="description"
+      content="Future Edu Academy - Warsztaty i szkolenia dla dzieci, nauczycieli i seniorów"
+    />
   </head>
   <body class="text-slate-700 min-h-screen flex flex-col">
-    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-orange-100/50">
+    <header
+      class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-orange-100/50"
+    >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-20 items-center">
           <!-- Logo -->
@@ -32,19 +37,45 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
               Future Edu<span class="text-brandAccent">Academy</span>
             </span>
           </a>
-          
+
           <!-- Desktop Menu -->
           <nav class="hidden md:flex space-x-8">
-            <a href={isHomepage ? '#katalog' : '/'} class={isHomepage || isCoursesPage ? 'text-brandPrimary font-semibold transition border-b-2 border-brandPrimary pb-1' : 'text-slate-600 hover:text-brandPrimary font-medium transition pb-1'}>Katalog Warsztatów</a>
-            <a href="/o-nas" class={isAboutPage ? 'text-brandPrimary font-semibold transition border-b-2 border-brandPrimary pb-1' : 'text-slate-600 hover:text-brandPrimary font-medium transition pb-1'}>O nas</a>
-            <a href="/kontakt" class={isContactPage ? 'text-brandPrimary font-semibold transition border-b-2 border-brandPrimary pb-1' : 'text-slate-600 hover:text-brandPrimary font-medium transition pb-1'}>Kontakt</a>
+            <a
+              href={isHomepage ? '#katalog' : '/'}
+              class={isHomepage || isCoursesPage
+                ? 'text-brandPrimary font-semibold transition border-b-2 border-brandPrimary pb-1'
+                : 'text-slate-600 hover:text-brandPrimary font-medium transition pb-1'}
+              >Katalog Warsztatów</a
+            >
+            <a
+              href="/o-nas"
+              class={isAboutPage
+                ? 'text-brandPrimary font-semibold transition border-b-2 border-brandPrimary pb-1'
+                : 'text-slate-600 hover:text-brandPrimary font-medium transition pb-1'}>O nas</a
+            >
+            <a
+              href="/kontakt"
+              class={isContactPage
+                ? 'text-brandPrimary font-semibold transition border-b-2 border-brandPrimary pb-1'
+                : 'text-slate-600 hover:text-brandPrimary font-medium transition pb-1'}>Kontakt</a
+            >
           </nav>
 
           <!-- Mobile Menu Button -->
           <div class="flex items-center space-x-4">
             <button class="md:hidden text-slate-600 hover:text-brandPrimary">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-7 w-7"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"></path>
               </svg>
             </button>
           </div>
@@ -57,7 +88,9 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
     </main>
 
     <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center"
+      >
         <div class="mb-6 md:mb-0 text-center md:text-left">
           <div class="flex items-center justify-center md:justify-start gap-2 mb-2">
             <img src="/logo.jpg" alt="Future Edu Academy Logo" class="h-10 w-auto" />
@@ -69,7 +102,9 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
         </div>
         <div class="flex space-x-6">
           <a href="/regulamin" class="hover:text-white transition text-sm">Regulamin</a>
-          <a href="/polityka-prywatnosci" class="hover:text-white transition text-sm">Polityka prywatności</a>
+          <a href="/polityka-prywatnosci" class="hover:text-white transition text-sm"
+            >Polityka prywatności</a
+          >
           <a href="/kontakt" class="hover:text-white transition text-sm">Kontakt</a>
         </div>
       </div>

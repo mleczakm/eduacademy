@@ -5,7 +5,7 @@ import FormspreeModal from '../../components/FormspreeModal.astro';
 
 export async function getStaticPaths() {
   const courses = await getCollection('courses');
-  return courses.map(course => ({
+  return courses.map((course) => ({
     params: { slug: course.slug },
     props: { course },
   }));
@@ -18,15 +18,35 @@ const { Content } = await course.render();
 <Layout title={course.data.title}>
   <section class="py-12 md:py-20 bg-brandBg flex-grow">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <a href="/" class="flex items-center text-slate-500 hover:text-brandPrimary transition mb-8 group font-bold">
-        <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      <a
+        href="/"
+        class="flex items-center text-slate-500 hover:text-brandPrimary transition mb-8 group font-bold"
+      >
+        <svg
+          class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg
+        >
         Wróć do katalogu
       </a>
 
-      <div class="bg-white rounded-3xl border border-teal-100/50 overflow-hidden shadow-lg p-6 md:p-10">
+      <div
+        class="bg-white rounded-3xl border border-teal-100/50 overflow-hidden shadow-lg p-6 md:p-10"
+      >
         <div class="border-b border-slate-100 pb-8 mb-8">
-          <span class="inline-block bg-teal-50 text-brandPrimary text-xs font-bold px-3.5 py-1.5 rounded-full shadow-sm mb-4">{course.data.category}</span>
-          <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-4">{course.data.title}</h1>
+          <span
+            class="inline-block bg-teal-50 text-brandPrimary text-xs font-bold px-3.5 py-1.5 rounded-full shadow-sm mb-4"
+            >{course.data.category}</span
+          >
+          <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-4">
+            {course.data.title}
+          </h1>
           <p class="text-lg text-slate-500 leading-relaxed">Szczegółowy opis programu szkolenia.</p>
         </div>
 
@@ -34,8 +54,11 @@ const { Content } = await course.render();
           <!-- Lewa kolumna: Program warsztatu -->
           <div class="md:col-span-2 space-y-6 text-slate-600">
             <h3 class="text-xl font-bold text-slate-800">Czego nauczysz się podczas tych zajęć?</h3>
-            <p>Nasze warsztaty mają w 100% praktyczny charakter. Dbamy o to, by wiedza i umiejętności były przekazywane w bezpieczny, przyjazny i optymalny dla danej grupy wiekowej sposób.</p>
-            
+            <p>
+              Nasze warsztaty mają w 100% praktyczny charakter. Dbamy o to, by wiedza i umiejętności
+              były przekazywane w bezpieczny, przyjazny i optymalny dla danej grupy wiekowej sposób.
+            </p>
+
             <div class="bg-stone-50 rounded-2xl p-6">
               <h4 class="font-bold text-slate-800 mb-3">📋 Główne punkty programu:</h4>
               <ul class="list-disc pl-5 space-y-2 text-sm">
@@ -55,21 +78,31 @@ const { Content } = await course.render();
           <div class="md:col-span-1">
             <div class="bg-teal-50/40 border border-teal-100/30 rounded-2xl p-5 text-center">
               <span class="text-xs text-slate-500 block mb-1">Koszt uczestnictwa</span>
-              <span class="text-3xl font-extrabold text-slate-800 block mb-6">{course.data.priceFrom}</span>
-              
-              <div class="space-y-3 text-xs text-slate-500 text-left mb-6 border-t border-teal-100/30 pt-4">
+              <span class="text-3xl font-extrabold text-slate-800 block mb-6"
+                >{course.data.priceFrom}</span
+              >
+
+              <div
+                class="space-y-3 text-xs text-slate-500 text-left mb-6 border-t border-teal-100/30 pt-4"
+              >
                 <div class="flex items-center gap-2">
-                  <span>📅</span> <span>Termin: <strong>Zajęcia cykliczne</strong></span>
+                  <span>📅</span>
+                  <span>Termin: <strong>Zajęcia cykliczne</strong></span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span>📍</span> <span>Forma: <strong>Stacjonarnie</strong></span>
+                  <span>📍</span>
+                  <span>Forma: <strong>Stacjonarnie</strong></span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span>🏅</span> <span>Certyfikat: <strong>Na życzenie</strong></span>
+                  <span>🏅</span>
+                  <span>Certyfikat: <strong>Na życzenie</strong></span>
                 </div>
               </div>
 
-              <button onclick="document.getElementById('enroll-modal').classList.remove('hidden')" class="block w-full text-center bg-brandAccent hover:bg-amber-600 text-white font-bold py-3.5 rounded-xl transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-sm">
+              <button
+                onclick="document.getElementById('enroll-modal').classList.remove('hidden')"
+                class="block w-full text-center bg-brandAccent hover:bg-amber-600 text-white font-bold py-3.5 rounded-xl transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-sm"
+              >
                 Zapisz się teraz
               </button>
               <p class="text-[10px] text-slate-400 mt-3">
