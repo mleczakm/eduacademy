@@ -24,10 +24,10 @@ const categoryEmoji =
 
 const categoryClass =
   course.data.category === 'Dla dzieci'
-    ? 'bg-teal-50'
+    ? 'bg-brandAccentLight'
     : course.data.category === 'Dla nauczycieli'
-      ? 'bg-amber-50/50'
-      : 'bg-emerald-50/40';
+      ? 'bg-brandSoftBlue'
+      : 'bg-brandSlate';
 
 const emoji =
   course.data.image ||
@@ -39,7 +39,7 @@ const emoji =
 ---
 
 <div
-  class="course-card bg-white rounded-3xl border border-teal-50 overflow-hidden flex flex-col shadow-sm"
+  class="course-card bg-white rounded-xl border border-slate-100 overflow-hidden flex flex-col shadow-sm"
   data-category={course.data.category === 'Dla dzieci'
     ? 'dzieci'
     : course.data.category === 'Dla nauczycieli'
@@ -69,7 +69,7 @@ const emoji =
         >
         <button
           onclick="document.getElementById('enroll-modal').classList.remove('hidden')"
-          class="bg-brandAccent hover:bg-amber-600 text-white text-sm font-bold py-2 px-4 rounded-xl transition shadow-sm"
+          class="bg-brandAccent hover:bg-brandPrimary text-white text-sm font-bold py-2 px-4 rounded-xl transition shadow-sm"
           >Zapisz się</button
         >
       </div>

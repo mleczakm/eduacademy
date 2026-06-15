@@ -23,18 +23,22 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
       name="description"
       content="Future Edu Academy - Warsztaty i szkolenia dla dzieci, nauczycieli i seniorów"
     />
+    <meta property="og:image" content="https://eduacademy.pl/logo.png" />
+    <meta property="twitter:image" content="https://eduacademy.pl/logo.png" />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="manifest" href="/site.webmanifest" />
   </head>
   <body class="text-slate-700 min-h-screen flex flex-col">
     <header
-      class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-orange-100/50"
+      class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-slate-100"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-20 items-center">
           <!-- Logo -->
           <a href="/" class="flex-shrink-0 flex items-center gap-3">
-            <img src="/logo.jpg" alt="Future Edu Academy Logo" class="h-12 w-auto" />
-            <span class="text-2xl md:text-3xl font-bold text-brandPrimary tracking-tight">
-              Future Edu<span class="text-brandAccent">Academy</span>
+            <img src="/logo.png" alt="Future Edu Academy Logo" class="h-10 object-contain" />
+            <span class="text-2xl md:text-3xl font-semibold text-brandPrimary tracking-tight">
+              Future Edu <span class="text-brandAccent font-light">Academy</span>
             </span>
           </a>
 
@@ -93,9 +97,9 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
       >
         <div class="mb-6 md:mb-0 text-center md:text-left">
           <div class="flex items-center justify-center md:justify-start gap-2 mb-2">
-            <img src="/logo.jpg" alt="Future Edu Academy Logo" class="h-10 w-auto" />
-            <span class="text-2xl font-bold text-white tracking-tight">
-              Future Edu<span class="text-brandAccent">Academy</span>
+            <img src="/logo.png" alt="Future Edu Academy Logo" class="h-10 object-contain" />
+            <span class="text-2xl font-semibold text-white tracking-tight">
+              Future Edu <span class="text-brandAccent font-light">Academy</span>
             </span>
           </div>
           <p class="text-xs">Miejsce inspirujących spotkań i twórczego rozwoju dla każdego.</p>

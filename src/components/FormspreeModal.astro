@@ -15,8 +15,8 @@ const modalTitle = courseTitle ? 'Zapisz się na zajęcia' : 'Formularz kontakto
   id="enroll-modal"
   class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center"
 >
-  <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
-    <h3 class="text-2xl font-bold text-slate-800 mb-4 font-quicksand">{modalTitle}</h3>
+  <div class="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl">
+    <h3 class="text-2xl font-bold text-slate-800 mb-4">{modalTitle}</h3>
 
     <!-- Integracja Formspree -->
     <form action="https://formspree.io/f/TWOJ_ID_FORMSPREE" method="POST" class="space-y-4">
@@ -29,7 +29,7 @@ const modalTitle = courseTitle ? 'Zapisz się na zajęcia' : 'Formularz kontakto
           type="text"
           name="name"
           required
-          class="w-full bg-stone-50 border-2 border-teal-50 rounded-2xl px-4 py-3 focus:outline-none focus:border-teal-400"
+          class="w-full bg-brandSlate border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brandPrimary"
         />
       </div>
       <div>
@@ -38,7 +38,7 @@ const modalTitle = courseTitle ? 'Zapisz się na zajęcia' : 'Formularz kontakto
           type="email"
           name="email"
           required
-          class="w-full bg-stone-50 border-2 border-teal-50 rounded-2xl px-4 py-3 focus:outline-none focus:border-teal-400"
+          class="w-full bg-brandSlate border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brandPrimary"
         />
       </div>
       <div>
@@ -46,14 +46,14 @@ const modalTitle = courseTitle ? 'Zapisz się na zajęcia' : 'Formularz kontakto
         <textarea
           name="message"
           rows="3"
-          class="w-full bg-stone-50 border-2 border-teal-50 rounded-2xl px-4 py-3 focus:outline-none focus:border-teal-400"
+          class="w-full bg-brandSlate border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brandPrimary"
           placeholder={defaultMessage}>{defaultMessage}</textarea
         >
       </div>
 
       <button
         type="submit"
-        class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 rounded-2xl transition shadow-md"
+        class="w-full bg-brandPrimary hover:bg-brandPrimaryDark text-white font-bold py-3.5 rounded-xl transition shadow-md"
       >
         Wyślij zgłoszenie
       </button>

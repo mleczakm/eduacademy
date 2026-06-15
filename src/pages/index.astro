@@ -15,7 +15,7 @@ const allCourses = await getCollection('courses');
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-12">
         <span
-          class="text-brandPrimary font-bold text-sm tracking-wider uppercase bg-teal-50 px-3 py-1 rounded-full"
+          class="text-brandPrimary font-bold text-sm tracking-wider uppercase bg-brandAccentLight px-3 py-1 rounded-full"
           >Nasza Oferta</span
         >
         <h2 class="text-3xl md:text-4xl font-extrabold text-slate-800 mt-3 mb-4">
@@ -29,7 +29,11 @@ const allCourses = await getCollection('courses');
       <!-- Wyszukiwarka -->
       <div class="max-w-3xl mx-auto mb-10 relative">
         <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-          <svg class="h-5 w-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          <svg
+            class="h-5 w-5 text-brandPrimary"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
             ><path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -40,7 +44,7 @@ const allCourses = await getCollection('courses');
         <input
           type="text"
           id="search-input"
-          class="block w-full pl-12 pr-4 py-4 rounded-3xl border-2 border-slate-100 bg-stone-50/50 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-0 focus:border-brandPrimary focus:bg-white text-base transition shadow-sm"
+          class="block w-full pl-12 pr-4 py-4 rounded-xl border-2 border-slate-100 bg-brandSlate text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-0 focus:border-brandPrimary focus:bg-white text-base transition shadow-sm"
           placeholder="Wpisz nazwę warsztatu, np. sensoryczne, kodowanie, pamięć..."
         />
       </div>
@@ -48,25 +52,25 @@ const allCourses = await getCollection('courses');
       <!-- System zakładek / filtrów -->
       <div class="flex flex-wrap justify-center gap-2.5 mb-12">
         <button
-          class="filter-btn active bg-brandPrimary text-white px-6 py-2.5 rounded-2xl font-bold text-sm transition shadow-md shadow-teal-900/10"
+          class="filter-btn active bg-brandPrimary text-white px-6 py-2.5 rounded-xl font-bold text-sm transition shadow-md shadow-brandPrimary/20"
           data-filter="all"
         >
           Wszystkie zajęcia
         </button>
         <button
-          class="filter-btn bg-stone-50 text-slate-600 hover:bg-teal-50 hover:text-brandPrimary px-6 py-2.5 rounded-2xl font-bold text-sm transition"
+          class="filter-btn bg-brandSlate text-slate-600 hover:bg-brandAccentLight hover:text-brandPrimary px-6 py-2.5 rounded-xl font-bold text-sm transition"
           data-filter="dzieci"
         >
           👶 Dla dzieci
         </button>
         <button
-          class="filter-btn bg-stone-50 text-slate-600 hover:bg-teal-50 hover:text-brandPrimary px-6 py-2.5 rounded-2xl font-bold text-sm transition"
+          class="filter-btn bg-brandSlate text-slate-600 hover:bg-brandAccentLight hover:text-brandPrimary px-6 py-2.5 rounded-xl font-bold text-sm transition"
           data-filter="nauczyciele"
         >
           👩‍🏫 Dla nauczycieli
         </button>
         <button
-          class="filter-btn bg-stone-50 text-slate-600 hover:bg-teal-50 hover:text-brandPrimary px-6 py-2.5 rounded-2xl font-bold text-sm transition"
+          class="filter-btn bg-brandSlate text-slate-600 hover:bg-brandAccentLight hover:text-brandPrimary px-6 py-2.5 rounded-xl font-bold text-sm transition"
           data-filter="seniorzy"
         >
           🧓 Dla seniorów
@@ -149,18 +153,18 @@ const allCourses = await getCollection('courses');
             'bg-brandPrimary',
             'text-white',
             'shadow-md',
-            'shadow-teal-900/10',
+            'shadow-brandPrimary/20',
             'active'
           );
-          b.classList.add('bg-stone-50', 'text-slate-600');
+          b.classList.add('bg-brandSlate', 'text-slate-600');
         });
 
-        btn.classList.remove('bg-stone-50', 'text-slate-600');
+        btn.classList.remove('bg-brandSlate', 'text-slate-600');
         btn.classList.add(
           'bg-brandPrimary',
           'text-white',
           'shadow-md',
-          'shadow-teal-900/10',
+          'shadow-brandPrimary/20',
           'active'
         );
 

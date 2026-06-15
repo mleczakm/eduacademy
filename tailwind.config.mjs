@@ -4,16 +4,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        brandPrimary: '#0d9488',
-        brandPrimaryDark: '#0f766e',
-        brandAccent: '#f59e0b',
-        brandAccentLight: '#fef3c7',
-        brandBg: '#fdfbf7',
-        brandSoftGreen: '#f0fdf4',
-        brandSoftPink: '#fff1f2',
+        // Główny niebieski pobrany na podstawie logo
+        brandPrimary: '#0955B6',
+        brandPrimaryDark: '#0955B6',
+        // Błękit do delikatnych akcentów i podświetleń
+        brandAccent: '#3b82f6',
+        brandAccentLight: '#dbeafe',
+        // Neutralne, czyste tła
+        brandBg: '#ffffff',
+        brandSoftBlue: '#eff6ff',
+        brandSlate: '#f8fafc',
+        // Kolory tekstu (granat dla nagłówków, szary dla treści)
+        textMain: '#0f172a',
+        textMuted: '#475569',
       },
       fontFamily: {
-        sans: ['Quicksand', 'sans-serif'],
+        // Zmiana na nowoczesny, geometryczny font pasujący do EdTech
+        sans: ['Montserrat', 'serif'],
       },
     },
   },
