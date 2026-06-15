@@ -41,6 +41,7 @@ const allCourses = await getCollection('courses');
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg
           >
         </div>
+        <label for="search-input" class="sr-only">Wyszukaj warsztaty</label>
         <input
           type="text"
           id="search-input"
@@ -106,15 +107,17 @@ const allCourses = await getCollection('courses');
     const resetBtn = document.getElementById('reset-filters');
     const courseGrid = document.getElementById('course-grid');
 
-    let currentCategory = 'all';
+    let currentCategory: string | null = 'all';
     let currentSearchTerm = '';
 
     function filterCourses() {
       let visibleCount = 0;
 
       courseCards.forEach((card) => {
-        const title = card.querySelector('h3').innerText.toLowerCase();
-        const desc = card.querySelector('p').innerText.toLowerCase();
+        const titleEl = card.querySelector('h3');
+        const descEl = card.querySelector('p');
+        const title = titleEl?.innerText.toLowerCase() || '';
+        const desc = descEl?.innerText.toLowerCase() || '';
         const category = card.getAttribute('data-category');
 
         const matchesSearch = title.includes(currentSearchTerm) || desc.includes(currentSearchTerm);
@@ -141,7 +144,8 @@ const allCourses = await getCollection('courses');
 
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
-        currentSearchTerm = e.target.value.toLowerCase().trim();
+        const target = e.target as HTMLInputElement;
+        currentSearchTerm = target.value.toLowerCase().trim();
         filterCourses();
       });
     }
@@ -175,9 +179,9 @@ const allCourses = await getCollection('courses');
 
     if (resetBtn && searchInput) {
       resetBtn.addEventListener('click', () => {
-        searchInput.value = '';
+        (searchInput as HTMLInputElement).value = '';
         currentSearchTerm = '';
-        const defaultFilter = document.querySelector('.filter-btn[data-filter="all"]');
+        const defaultFilter = document.querySelector('.filter-btn[data-filter="all"]') as HTMLElement;
         if (defaultFilter) {
           defaultFilter.click();
         }
