@@ -181,7 +181,9 @@ const allCourses = await getCollection('courses');
       resetBtn.addEventListener('click', () => {
         (searchInput as HTMLInputElement).value = '';
         currentSearchTerm = '';
-        const defaultFilter = document.querySelector('.filter-btn[data-filter="all"]') as HTMLElement;
+        const defaultFilter = document.querySelector(
+          '.filter-btn[data-filter="all"]'
+        ) as HTMLElement;
         if (defaultFilter) {
           defaultFilter.click();
         }
