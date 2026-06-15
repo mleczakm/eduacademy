@@ -1,18 +1,18 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import FormspreeModal from '../../components/FormspreeModal.astro';
 
 export async function getStaticPaths() {
   const courses = await getCollection('courses');
   return courses.map((course) => ({
-    params: { slug: course.slug },
+    params: { slug: course.id },
     props: { course },
   }));
 }
 
 const { course } = Astro.props;
-const { Content } = await course.render();
+const { Content } = await render(course);
 ---
 
 <Layout title={course.data.title}>

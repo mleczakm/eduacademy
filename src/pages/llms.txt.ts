@@ -14,7 +14,7 @@ export async function GET() {
 
   for (const course of courses) {
     content += `### ${course.data.title}\n\n`;
-    content += `- **URL:** https://eduacademy.pl/szkolenia/${course.slug}\n`;
+    content += `- **URL:** https://eduacademy.pl/szkolenia/${course.id}\n`;
     content += `- **Kategoria:** ${course.data.category}\n`;
     content += `- **Cena:** ${course.data.priceFrom}\n`;
     content += `- **Tagi:** ${course.data.tags.join(', ')}\n`;

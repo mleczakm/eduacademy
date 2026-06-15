@@ -1,7 +1,9 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
 
 const courses = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.md', base: './src/content/courses' }),
   schema: z.object({
     title: z.string(),
     category: z.enum(['Dla dzieci', 'Dla nauczycieli', 'Dla seniorów']),
@@ -12,20 +14,12 @@ const courses = defineCollection({
   }),
 });
 
-const publications = defineCollection({
-  type: 'content',
-  schema: z.object({
-    title: z.string(),
-    date: z.date(),
-  }),
-});
-
 const pages = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.md', base: './src/content/pages' }),
   schema: z.object({
     title: z.string(),
     slug: z.string(),
   }),
 });
 
-export const collections = { courses, publications, pages };
+export const collections = { courses, pages };
