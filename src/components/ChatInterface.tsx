@@ -57,10 +57,15 @@ const ChatContent = () => {
     },
     textOnly: true,
   });
-  const { sendUserMessage, status } = conversation;
+  const { sendUserMessage, status, message } = conversation;
 
   const isStarting = useRef(false);
   const lastAttempt = useRef<number>(0);
+  const statusRef = useRef(status);
+
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
 
   useEffect(() => {
     if (!historyLoaded) return;
@@ -84,7 +89,7 @@ const ChatContent = () => {
         });
         // Added a safety timeout to reset isStarting if it gets stuck in 'connecting' for too long
         setTimeout(() => {
-          if (isStarting.current && (status === 'disconnected' || status === 'connecting')) {
+          if (isStarting.current && statusRef.current !== 'connected') {
             console.log('Session start timed out, resetting guard');
             isStarting.current = false;
           }
@@ -99,12 +104,11 @@ const ChatContent = () => {
     } else if (status === 'connecting') {
       console.log('Session is connecting...');
       isStarting.current = true;
-    } else if (status === 'disconnecting') {
-      console.log('Session is disconnecting...');
-      // Ensure we don't try to start a new session while disconnecting
-      isStarting.current = true;
+    } else if (status === 'error') {
+      console.log('Session error:', message);
+      isStarting.current = false;
     }
-  }, [status, historyLoaded]);
+  }, [status, historyLoaded, message]);
   
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -124,11 +128,6 @@ const ChatContent = () => {
     scrollToBottom();
   }, [localMessages]);
 
-  const statusRef = useRef(status);
-  useEffect(() => {
-    statusRef.current = status;
-  }, [status]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -136,8 +135,10 @@ const ChatContent = () => {
     if (!inputValue.trim()) return;
 
     try {
+      const needsConnection = statusRef.current === 'disconnected';
+
       // If we're disconnected, try to start session and then send message
-      if (statusRef.current === 'disconnected') {
+      if (needsConnection) {
         conversation.startSession({
           agentId: "agent_2501ktwm893ffmwt20a3v29eg57q",
           textOnly: true,
@@ -145,7 +146,8 @@ const ChatContent = () => {
 
         // Wait for connection to establish
         let attempts = 0;
-        while (attempts < 25 && statusRef.current !== 'connected') { // max 5 seconds
+        while (attempts < 25) {
+          if (statusRef.current === 'connected') break;
           await new Promise(resolve => setTimeout(resolve, 200));
           attempts++;
         }
