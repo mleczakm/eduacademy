@@ -22,6 +22,7 @@
     "@astrojs/sitemap": "^3.7.3",
     "@astrojs/tailwind": "^6.0.2",
     "@elevenlabs/react": "^1.6.6",
+    "@tailwindcss/typography": "^0.5.20",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "astro": "^6.4.6",
