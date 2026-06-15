@@ -6,19 +6,34 @@ interface Message {
   text: string;
 }
 
+function dedupeConsecutiveMessages(messages: Message[]): Message[] {
+  return messages.filter((msg, idx) => {
+    if (idx === 0) return true;
+    const prev = messages[idx - 1];
+    return !(msg.role === prev.role && msg.text === prev.text);
+  });
+}
+
 const ChatContent = () => {
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
+  const skipAutoStart = useRef(false);
   
   // Load messages from localStorage on mount
   useEffect(() => {
     const savedMessages = localStorage.getItem('chat_history');
     if (savedMessages) {
       try {
-        setLocalMessages(JSON.parse(savedMessages));
+        const parsed = dedupeConsecutiveMessages(JSON.parse(savedMessages) as Message[]);
+        if (parsed.length > 0) {
+          setLocalMessages(parsed);
+          skipAutoStart.current = true;
+        }
       } catch (e) {
         console.error('Failed to parse chat history:', e);
       }
     }
+    setHistoryLoaded(true);
   }, []);
 
   // Save messages to localStorage whenever they change
@@ -32,10 +47,14 @@ const ChatContent = () => {
     onMessage: (message) => {
       // Only add agent messages here, user messages are added locally in handleSubmit
       if (message.role === 'agent') {
-        setLocalMessages(prev => [...prev, {
-          role: 'agent',
-          text: message.message
-        }]);
+        setLocalMessages(prev => {
+          const text = message.message;
+          // Skip duplicate greeting when reconnecting with existing history
+          if (prev.some((m) => m.role === 'agent' && m.text === text)) {
+            return prev;
+          }
+          return [...prev, { role: 'agent', text }];
+        });
       }
     },
     textOnly: true,
@@ -46,8 +65,10 @@ const ChatContent = () => {
   const lastAttempt = useRef<number>(0);
 
   useEffect(() => {
+    if (!historyLoaded) return;
+
     console.log('Conversation status changed:', status);
-    if (status === 'disconnected' && !isStarting.current) {
+    if (status === 'disconnected' && !isStarting.current && !skipAutoStart.current) {
       // Check for last attempt time to prevent rapid retry loops
       const now = Date.now();
       if (now - lastAttempt.current < 3000) {
@@ -85,7 +106,7 @@ const ChatContent = () => {
       // Ensure we don't try to start a new session while disconnecting
       isStarting.current = true;
     }
-  }, [status]);
+  }, [status, historyLoaded]);
   
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
