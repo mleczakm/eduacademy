@@ -1,4 +1,4 @@
-name: Deploy Astro to GitHub Pages
+name: Deploy to Netlify
 
 on:
   push:
@@ -7,11 +7,9 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: "pages"
+  group: "netlify"
   cancel-in-progress: false
 
 jobs:
@@ -26,13 +24,7 @@ jobs:
       matrix:
         include:
           - domain: "eduacademy.pl"
-            ip: "185.199.108.153"
-          - domain: "eduacademy.pl"
-            ip: "185.199.109.153"
-          - domain: "eduacademy.pl"
-            ip: "185.199.110.153"
-          - domain: "eduacademy.pl"
-            ip: "185.199.111.153"
+            ip: "75.2.60.5"
     steps:
       - name: "Create A record ${{ matrix.domain }} -> ${{ matrix.ip }}"
         uses: Bluesboy/create-dns-record@v2.1
@@ -56,31 +48,28 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          GITHUB_PAGES_IPS: "185.199.108.153,185.199.109.153,185.199.110.153,185.199.111.153"
         run: |
           set -euo pipefail
-          
-          DESIRED_IPS=("185.199.108.153" "185.199.109.153" "185.199.110.153" "185.199.111.153")
+
+          DESIRED_IPS=("75.2.60.5")
           DOMAINS=("eduacademy.pl")
-          
+
           for domain in "${DOMAINS[@]}"; do
             echo "Fetching A records for $domain..."
             RESPONSE=$(curl -sS -X GET "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/dns_records?name=$domain&type=A&per_page=100" \
               -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
               -H "Content-Type: application/json")
-            
+
             success=$(echo "$RESPONSE" | jq -r '.success')
             if [ "$success" != "true" ]; then
               echo "Failed to fetch records for $domain: $RESPONSE"
               continue
             fi
-            
-            # Check each record and delete if not in desired list
+
             echo "$RESPONSE" | jq -c '.result[]' | while read -r record; do
               rec_id=$(echo "$record" | jq -r '.id')
               rec_ip=$(echo "$record" | jq -r '.content')
-              
-              # Check if this IP is in the desired list
+
               found=false
               for desired_ip in "${DESIRED_IPS[@]}"; do
                 if [ "$rec_ip" = "$desired_ip" ]; then
@@ -88,7 +77,7 @@ jobs:
                   break
                 fi
               done
-              
+
               if [ "$found" = false ]; then
                 echo "Deleting unwanted A record for $domain: $rec_ip (id=$rec_id)"
                 del_resp=$(curl -sS -X DELETE "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/dns_records/$rec_id" \
@@ -103,12 +92,12 @@ jobs:
               fi
             done
           done
-          
+
           echo "✓ DNS cleanup complete"
 
-  build:
+  ci:
+    name: Lint and build
     runs-on: ubuntu-latest
-    needs: cleanup-dns
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -119,16 +108,3 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: './dist'
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4

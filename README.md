@@ -11,7 +11,7 @@ A modern Jamstack education platform built with Astro, featuring course manageme
 - **Forms**: Formspree (Contact forms)
 - **AI Integration**: window.ai (Chrome AI API)
 - **Linting**: ESLint + Prettier
-- **CI/CD**: GitHub Actions (GitHub Pages deployment)
+- **CI/CD**: Netlify (deploy) + GitHub Actions (DNS & CI checks)
 
 ## 📋 Prerequisites
 
@@ -118,15 +118,16 @@ Access the admin panel at `/admin` to manage content through a web interface.
 
 ## 🚢 Deployment
 
-### GitHub Pages (Automatic)
+### Netlify (Automatic)
 
-The project is configured for automatic deployment to GitHub Pages via GitHub Actions:
+The site deploys from Netlify when you push to `main`. GitHub Actions manages Cloudflare DNS and runs CI checks.
 
-1. Push to the `main` branch
-2. GitHub Actions will automatically:
-   - Run linting and formatting checks
-   - Build the project
-   - Deploy to GitHub Pages
+1. Connect the repository in the [Netlify dashboard](https://app.netlify.com/)
+2. Set the custom domain to `eduacademy.pl`
+3. Enable **Identity** and **Git Gateway** (Site settings → Identity → Services → Git Gateway)
+4. Push to `main` — Netlify builds and deploys; GitHub Actions updates DNS to Netlify (`75.2.60.5`) and runs lint/build checks
+
+Decap CMS at `/admin` uses Netlify Identity for authentication.
 
 ### Manual Deployment
 

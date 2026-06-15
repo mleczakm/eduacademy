@@ -1,6 +1,5 @@
 backend:
-  name: github
-  repo: mleczakm/eduacademy
+  name: git-gateway
   branch: main
 
 media_folder: "public/assets"
