@@ -17,7 +17,6 @@ function dedupeConsecutiveMessages(messages: Message[]): Message[] {
 const ChatContent = () => {
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
   const [historyLoaded, setHistoryLoaded] = useState(false);
-  const skipAutoStart = useRef(false);
   
   // Load messages from localStorage on mount
   useEffect(() => {
@@ -27,7 +26,6 @@ const ChatContent = () => {
         const parsed = dedupeConsecutiveMessages(JSON.parse(savedMessages) as Message[]);
         if (parsed.length > 0) {
           setLocalMessages(parsed);
-          skipAutoStart.current = true;
         }
       } catch (e) {
         console.error('Failed to parse chat history:', e);
@@ -68,7 +66,7 @@ const ChatContent = () => {
     if (!historyLoaded) return;
 
     console.log('Conversation status changed:', status);
-    if (status === 'disconnected' && !isStarting.current && !skipAutoStart.current) {
+    if (status === 'disconnected' && !isStarting.current) {
       // Check for last attempt time to prevent rapid retry loops
       const now = Date.now();
       if (now - lastAttempt.current < 3000) {
