@@ -129,6 +129,13 @@ The site deploys from Netlify when you push to `main`. GitHub Actions manages Cl
 
 Decap CMS at `/admin` uses Netlify Identity for authentication.
 
+#### Identity email links (invite / password reset)
+
+By default, Netlify Identity emails redirect to the site root (`https://eduacademy.pl/`) instead of `/admin`.
+That's why there is a custom JavaScript to redirect to admin pages when a netlify anchor is found.
+
+The site also loads the Netlify Identity widget on all pages so that if a user still lands on `/` with a token in the URL hash, they are logged in and redirected to `/admin`.
+
 ### Manual Deployment
 
 ```bash
