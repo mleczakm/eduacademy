@@ -31,7 +31,7 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
     <!-- Resource hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" href="/logo.png" as="image" />
+    <link rel="preload" href="/logo.webp" as="image" type="image/webp" />
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
       rel="stylesheet"
@@ -57,13 +57,16 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
         <div class="flex justify-between h-20 items-center">
           <!-- Logo -->
           <a href="/" class="flex-shrink-0 flex items-center gap-3">
-            <img
-              src="/logo.png"
-              alt="Future Edu Academy Logo"
-              class="h-10 object-contain"
-              width="119"
-              height="119"
-            />
+            <picture>
+              <source srcset="/logo.webp" type="image/webp" />
+              <img
+                src="/logo.png"
+                alt="Future Edu Academy Logo"
+                class="h-10 object-contain"
+                width="119"
+                height="119"
+              />
+            </picture>
             <span class="text-2xl md:text-3xl font-semibold text-brandPrimary tracking-tight">
               Future Edu <span class="text-brandAccent font-light">Academy</span>
             </span>
@@ -149,14 +152,17 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
       >
         <div class="mb-6 md:mb-0 text-center md:text-left">
           <div class="flex items-center justify-center md:justify-start gap-2 mb-2">
-            <img
-              src="/logo.png"
-              alt="Future Edu Academy Logo"
-              class="h-10 object-contain"
-              width="119"
-              height="119"
-              loading="lazy"
-            />
+            <picture>
+              <source srcset="/logo.webp" type="image/webp" />
+              <img
+                src="/logo.png"
+                alt="Future Edu Academy Logo"
+                class="h-10 object-contain"
+                width="119"
+                height="119"
+                loading="lazy"
+              />
+            </picture>
             <span class="text-2xl font-semibold text-white tracking-tight">
               Future Edu <span class="text-brandAccent font-light">Academy</span>
             </span>
