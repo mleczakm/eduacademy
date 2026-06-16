@@ -13,13 +13,6 @@ export default defineConfig({
   vite: {
     build: {
       cssCodeSplit: true,
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            'react-vendor': ['react', 'react-dom'],
-          },
-        },
-      },
     },
   },
 });
