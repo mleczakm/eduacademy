@@ -27,7 +27,16 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
     <meta property="twitter:image" content="https://eduacademy.pl/logo.png" />
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <script>
+
+    <!-- Resource hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" href="/logo.png" as="image" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline defer>
       // Redirect Netlify Identity email tokens to the CMS admin panel
       const hash = window.location.hash;
       if (
@@ -48,7 +57,13 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
         <div class="flex justify-between h-20 items-center">
           <!-- Logo -->
           <a href="/" class="flex-shrink-0 flex items-center gap-3">
-            <img src="/logo.png" alt="Future Edu Academy Logo" class="h-10 object-contain" />
+            <img
+              src="/logo.png"
+              alt="Future Edu Academy Logo"
+              class="h-10 object-contain"
+              width="119"
+              height="119"
+            />
             <span class="text-2xl md:text-3xl font-semibold text-brandPrimary tracking-tight">
               Future Edu <span class="text-brandAccent font-light">Academy</span>
             </span>
@@ -134,7 +149,14 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
       >
         <div class="mb-6 md:mb-0 text-center md:text-left">
           <div class="flex items-center justify-center md:justify-start gap-2 mb-2">
-            <img src="/logo.png" alt="Future Edu Academy Logo" class="h-10 object-contain" />
+            <img
+              src="/logo.png"
+              alt="Future Edu Academy Logo"
+              class="h-10 object-contain"
+              width="119"
+              height="119"
+              loading="lazy"
+            />
             <span class="text-2xl font-semibold text-white tracking-tight">
               Future Edu <span class="text-brandAccent font-light">Academy</span>
             </span>
@@ -151,6 +173,73 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
       </div>
     </footer>
 
+    <!-- Global Enrollment Modal -->
+    <div
+      id="enroll-modal"
+      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden"
+    >
+      <div class="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl">
+        <h3 id="modal-title" class="text-2xl font-bold text-slate-800 mb-4">
+          Formularz kontaktowy
+        </h3>
+
+        <!-- Integration with Formspree -->
+        <form action="https://formspree.io/f/TWOJ_ID_FORMSPREE" method="POST" class="space-y-4">
+          <!-- Ukryte pole z nazwą kursu (automatyczne przypisanie) -->
+          <input type="hidden" id="modal-course-input" name="Szkolenie" value="" />
+
+          <div>
+            <label for="modal-name" class="block text-sm font-bold text-slate-600 mb-1"
+              >Imię i nazwisko</label
+            >
+            <input
+              id="modal-name"
+              type="text"
+              name="name"
+              required
+              class="w-full bg-brandSlate border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brandPrimary"
+            />
+          </div>
+          <div>
+            <label for="modal-email" class="block text-sm font-bold text-slate-600 mb-1"
+              >Adres E-mail</label
+            >
+            <input
+              id="modal-email"
+              type="email"
+              name="email"
+              required
+              class="w-full bg-brandSlate border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brandPrimary"
+            />
+          </div>
+          <div>
+            <label for="modal-message" class="block text-sm font-bold text-slate-600 mb-1"
+              >Wiadomość / Pytania</label
+            >
+            <textarea
+              id="modal-message"
+              name="message"
+              rows="3"
+              class="w-full bg-brandSlate border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brandPrimary"
+              placeholder=""></textarea>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-brandPrimary hover:bg-brandPrimaryDark text-white font-bold py-3.5 rounded-xl transition shadow-md"
+          >
+            Wyślij zgłoszenie
+          </button>
+        </form>
+        <button
+          onclick="document.getElementById('enroll-modal').classList.add('hidden')"
+          class="mt-4 text-slate-400 hover:text-slate-600 text-sm font-bold w-full text-center"
+        >
+          Anuluj
+        </button>
+      </div>
+    </div>
+
     <script>
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
       const mobileMenu = document.getElementById('mobile-menu');
@@ -160,6 +249,30 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
           mobileMenu.classList.toggle('hidden');
         });
       }
+
+      // Global function to open enrollment modal with course title
+      function openEnrollModal(courseTitle: string) {
+        const modal = document.getElementById('enroll-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const courseInput = document.getElementById('modal-course-input') as HTMLInputElement;
+        const messageArea = document.getElementById('modal-message') as HTMLTextAreaElement;
+
+        if (modal && modalTitle && courseInput && messageArea) {
+          modalTitle.textContent = 'Zapisz się na zajęcia';
+          courseInput.value = courseTitle;
+          messageArea.placeholder = `Jestem zainteresowana/-y kursem "${courseTitle}", proszę o kontakt w sprawie rejestracji na zajęcia.`;
+          messageArea.value = messageArea.placeholder;
+          modal.classList.remove('hidden');
+        }
+      }
+
+      // Expose function to global scope
+      declare global {
+        interface Window {
+          openEnrollModal: (courseTitle: string) => void;
+        }
+      }
+      window.openEnrollModal = openEnrollModal;
     </script>
   </body>
 </html>

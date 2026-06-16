@@ -1,6 +1,4 @@
 ---
-import FormspreeModal from './FormspreeModal.astro';
-
 interface Props {
   course: {
     data: {
@@ -68,7 +66,8 @@ const emoji =
           >Szczegóły</a
         >
         <button
-          onclick="document.getElementById('enroll-modal').classList.remove('hidden')"
+          data-course-title={course.data.title}
+          onclick="openEnrollModal(this.getAttribute('data-course-title'))"
           class="bg-brandAccent hover:bg-brandPrimary text-white text-sm font-bold py-2 px-4 rounded-xl transition shadow-sm"
           >Zapisz się</button
         >
@@ -76,5 +75,3 @@ const emoji =
     </div>
   </div>
 </div>
-
-<FormspreeModal courseTitle={course.data.title} />

@@ -6,4 +6,20 @@ import react from '@astrojs/react';
 export default defineConfig({
   site: 'https://eduacademy.pl',
   integrations: [tailwind(), sitemap(), react()],
+  build: {
+    inlineStylesheets: 'auto',
+  },
+  compressHTML: true,
+  vite: {
+    build: {
+      cssCodeSplit: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom'],
+          },
+        },
+      },
+    },
+  },
 });
