@@ -27,6 +27,13 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
     <meta property="twitter:image" content="https://eduacademy.pl/logo.png" />
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="manifest" href="/site.webmanifest" />
+    <script>
+      // Redirect Netlify Identity email tokens to the CMS admin panel
+      const hash = window.location.hash;
+      if (hash && (hash.includes('invite_token=') || hash.includes('recovery_token=') || hash.includes('confirmation_token='))) {
+        window.location.replace('/admin/' + hash);
+      }
+    </script>
   </head>
   <body class="text-slate-700 min-h-screen flex flex-col">
     <header
