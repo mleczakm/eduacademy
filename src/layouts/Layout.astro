@@ -30,7 +30,12 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
     <script>
       // Redirect Netlify Identity email tokens to the CMS admin panel
       const hash = window.location.hash;
-      if (hash && (hash.includes('invite_token=') || hash.includes('recovery_token=') || hash.includes('confirmation_token='))) {
+      if (
+        hash &&
+        (hash.includes('invite_token=') ||
+          hash.includes('recovery_token=') ||
+          hash.includes('confirmation_token='))
+      ) {
         window.location.replace('/admin/' + hash);
       }
     </script>
@@ -74,7 +79,7 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
 
           <!-- Mobile Menu Button -->
           <div class="flex items-center space-x-4">
-            <button class="md:hidden text-slate-600 hover:text-brandPrimary">
+            <button id="mobile-menu-btn" class="md:hidden text-slate-600 hover:text-brandPrimary">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-7 w-7"
@@ -90,6 +95,31 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
               </svg>
             </button>
           </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden pb-4">
+          <nav class="flex flex-col space-y-3">
+            <a
+              href={isHomepage ? '#katalog' : '/'}
+              class={isHomepage || isCoursesPage
+                ? 'text-brandPrimary font-semibold transition'
+                : 'text-slate-600 hover:text-brandPrimary font-medium transition'}
+              >Katalog Warsztatów</a
+            >
+            <a
+              href="/o-nas"
+              class={isAboutPage
+                ? 'text-brandPrimary font-semibold transition'
+                : 'text-slate-600 hover:text-brandPrimary font-medium transition'}>O nas</a
+            >
+            <a
+              href="/kontakt"
+              class={isContactPage
+                ? 'text-brandPrimary font-semibold transition'
+                : 'text-slate-600 hover:text-brandPrimary font-medium transition'}>Kontakt</a
+            >
+          </nav>
         </div>
       </div>
     </header>
@@ -120,5 +150,16 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
         </div>
       </div>
     </footer>
+
+    <script>
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+          mobileMenu.classList.toggle('hidden');
+        });
+      }
+    </script>
   </body>
 </html>
