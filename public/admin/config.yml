@@ -3,7 +3,7 @@ backend:
   repo: mleczakm/eduacademy
   branch: main
   # PAMIĘTAJ: Zastąp poniższy adres rzeczywistą domeną z wdrożenia Vercel
-  base_url: https://<TUTAJ_WPISZ_DOMENE_Z_VERCELA>.vercel.app
+  base_url: https://project-o9xqj-z07tn43uv-mleczki.vercel.app
 
 site_url: "https://eduacademy.pl"
 display_url: "https://eduacademy.pl"
