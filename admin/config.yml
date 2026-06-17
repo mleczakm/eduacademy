@@ -1,0 +1,40 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/assets"
+public_folder: "/assets"
+
+collections:
+  - name: "courses"
+    label: "Szkolenia"
+    folder: "src/content/courses"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Tytuł szkolenia", name: "title", widget: "string" }
+      - { label: "Kategoria", name: "category", widget: "select", options: ["dzieci", "nauczyciele", "seniorzy"], default: "dzieci" }
+      - { label: "Tagi", name: "tags", widget: "list", field: { widget: "string" } }
+      - { label: "Cena od", name: "priceFrom", widget: "string" }
+      - { label: "Zdjęcie wyróżniające", name: "image", widget: "image" }
+      - { label: "Pełny opis programu", name: "content", widget: "markdown" }
+
+  - name: "publications"
+    label: "Publikacje"
+    folder: "src/content/publications"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Tytuł", name: "title", widget: "string" }
+      - { label: "Data", name: "date", widget: "datetime" }
+      - { label: "Treść", name: "content", widget: "markdown" }
+
+  - name: "pages"
+    label: "Strony Informacyjne"
+    folder: "src/content/pages"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Tytuł strony", name: "title", widget: "string" }
+      - { label: "Slug (URL)", name: "slug", widget: "string" }
+      - { label: "Treść", name: "content", widget: "markdown" }

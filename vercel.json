@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "api/oauth.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/oauth",
+      "dest": "/api/oauth.js"
+    }
+  ]
+}

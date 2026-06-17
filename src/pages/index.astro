@@ -5,6 +5,12 @@ import CourseCard from '../components/CourseCard.astro';
 import { getCollection } from 'astro:content';
 
 const allCourses = await getCollection('courses');
+
+// Handle anchor link redirection
+if (Astro.url.hash) {
+  const targetId = Astro.url.hash.replace('#', '');
+  Astro.redirect(`/#${targetId}`);
+}
 ---
 
 <Layout title="Future Edu Academy">
