@@ -5,7 +5,7 @@ tags:
   - technologia
   - smartfon
   - senior
-priceFrom: 90,00 zł
+priceFrom: 89,99 zł
 image: 📱
 ---
 
