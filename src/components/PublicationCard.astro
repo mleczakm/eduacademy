@@ -1,0 +1,99 @@
+---
+const { publication } = Astro.props;
+const { data } = publication;
+
+// Use id as slug (generated from filename by glob loader)
+const slug = publication.id;
+
+const formatDate = (date: Date) => {
+  return new Intl.DateTimeFormat('pl-PL', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(date);
+};
+---
+
+<article
+  class="bg-white rounded-2xl border border-teal-100/50 overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col h-full"
+>
+  {
+    data.image && (
+      <div class="relative h-48 overflow-hidden">
+        <img src={data.image} alt={data.title} class="w-full h-full object-cover" loading="lazy" />
+      </div>
+    )
+  }
+
+  <div class="p-6 flex flex-col flex-grow">
+    <div class="flex items-center gap-2 mb-3 flex-wrap">
+      <span
+        class="text-xs font-semibold text-brandPrimary bg-brandAccentLight px-2 py-1 rounded-full"
+      >
+        {formatDate(data.pubDate)}
+      </span>
+      {
+        data.tags &&
+          data.tags.length > 0 &&
+          data.tags.slice(0, 2).map((tag) => {
+            const tagSlug = tag.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            return (
+              <a
+                href={`/publikacje/tag/${tagSlug}`}
+                class="text-xs text-slate-500 hover:text-brandPrimary transition"
+              >
+                {tag}
+              </a>
+            );
+          })
+      }
+    </div>
+
+    <h3 class="text-xl font-bold text-slate-800 mb-2 line-clamp-2">
+      {data.title}
+    </h3>
+
+    <p class="text-slate-600 text-sm mb-4 line-clamp-3 flex-grow">
+      {data.description}
+    </p>
+
+    {data.author && <p class="text-xs text-slate-500 mb-4">Autor: {data.author}</p>}
+
+    <div class="flex gap-3 mt-auto">
+      <a
+        href={`/publikacje/${slug}`}
+        class="flex-1 bg-brandPrimary hover:bg-brandPrimaryDark text-white font-bold py-2.5 px-4 rounded-xl transition text-sm text-center"
+      >
+        Czytaj więcej
+      </a>
+      {
+        data.pdfFile && (
+          <a
+            href={data.pdfFile}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex-1 bg-brandAccent hover:bg-amber-600 text-white font-bold py-2.5 px-4 rounded-xl transition text-sm text-center"
+          >
+            📄 PDF
+          </a>
+        )
+      }
+    </div>
+  </div>
+</article>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

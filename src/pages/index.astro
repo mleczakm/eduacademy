@@ -6,6 +6,14 @@ import { getCollection } from 'astro:content';
 
 const allCourses = await getCollection('courses');
 
+// Extract all unique tags from courses
+const courseTags = new Set<string>();
+for (const course of allCourses) {
+  if (course.data.tags) {
+    course.data.tags.forEach((tag) => courseTags.add(tag));
+  }
+}
+
 // Handle anchor link redirection
 if (Astro.url.hash) {
   const targetId = Astro.url.hash.replace('#', '');
@@ -57,7 +65,7 @@ if (Astro.url.hash) {
       </div>
 
       <!-- System zakładek / filtrów -->
-      <div class="flex flex-wrap justify-center gap-2.5 mb-12">
+      <div class="flex flex-wrap justify-center gap-2.5 mb-8">
         <button
           class="filter-btn active bg-brandPrimary text-white px-6 py-2.5 rounded-xl font-bold text-sm transition shadow-md shadow-brandPrimary/20"
           data-filter="all"
@@ -84,6 +92,59 @@ if (Astro.url.hash) {
         </button>
       </div>
 
+      <!-- Tag filters -->
+      <div class="flex flex-wrap justify-center gap-2 mb-12">
+        <span class="text-sm font-semibold text-slate-500 self-center mr-2">Tagi:</span>
+        <button
+          class="tag-filter-btn active text-xs text-brandPrimary bg-brandAccentLight px-3 py-1.5 rounded-full transition font-medium"
+          data-tag="all"
+        >
+          Wszystkie
+        </button>
+        <div id="tag-list" class="flex flex-wrap gap-2">
+          {
+            Array.from(courseTags)
+              .sort()
+              .slice(0, 8)
+              .map((tag) => {
+                return (
+                  <button
+                    class="tag-filter-btn text-xs text-slate-600 hover:text-brandPrimary hover:bg-brandAccentLight px-3 py-1.5 rounded-full transition font-medium"
+                    data-tag={tag}
+                  >
+                    {tag}
+                  </button>
+                );
+              })
+          }
+          {
+            Array.from(courseTags)
+              .sort()
+              .slice(8)
+              .map((tag) => {
+                return (
+                  <button
+                    class="tag-filter-btn text-xs text-slate-600 hover:text-brandPrimary hover:bg-brandAccentLight px-3 py-1.5 rounded-full transition font-medium hidden"
+                    data-tag={tag}
+                  >
+                    {tag}
+                  </button>
+                );
+              })
+          }
+        </div>
+        {
+          courseTags.size > 8 && (
+            <button
+              id="expand-tags-btn"
+              class="text-xs text-brandPrimary hover:text-brandPrimaryDark px-3 py-1.5 rounded-full transition font-medium"
+            >
+              +{courseTags.size - 8} więcej
+            </button>
+          )
+        }
+      </div>
+
       <!-- Komunikat braku wyników -->
       <div id="no-results" class="hidden text-center py-16">
         <span class="text-5xl block mb-4">🔍</span>
@@ -107,6 +168,7 @@ if (Astro.url.hash) {
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const filterBtns = document.querySelectorAll('.filter-btn');
+    const tagFilterBtns = document.querySelectorAll('.tag-filter-btn');
     const courseCards = document.querySelectorAll('.course-card');
     const searchInput = document.getElementById('search-input');
     const noResultsMsg = document.getElementById('no-results');
@@ -114,6 +176,7 @@ if (Astro.url.hash) {
     const courseGrid = document.getElementById('course-grid');
 
     let currentCategory: string | null = 'all';
+    let currentTag: string | null = 'all';
     let currentSearchTerm = '';
 
     function filterCourses() {
@@ -125,11 +188,13 @@ if (Astro.url.hash) {
         const title = titleEl?.innerText.toLowerCase() || '';
         const desc = descEl?.innerText.toLowerCase() || '';
         const category = card.getAttribute('data-category');
+        const tags = card.getAttribute('data-tags')?.split(',') || [];
 
         const matchesSearch = title.includes(currentSearchTerm) || desc.includes(currentSearchTerm);
         const matchesCategory = currentCategory === 'all' || category === currentCategory;
+        const matchesTag = currentTag === 'all' || tags.includes(currentTag);
 
-        if (matchesSearch && matchesCategory) {
+        if (matchesSearch && matchesCategory && matchesTag) {
           card.classList.remove('hidden-card');
           visibleCount++;
         } else {
@@ -183,15 +248,63 @@ if (Astro.url.hash) {
       });
     });
 
+    tagFilterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tagValue = btn.getAttribute('data-tag');
+        currentTag = tagValue;
+
+        tagFilterBtns.forEach((b) => {
+          b.classList.remove('active', 'text-brandPrimary', 'bg-brandAccentLight');
+          b.classList.add('text-slate-600');
+        });
+
+        btn.classList.remove('text-slate-600');
+        btn.classList.add('active', 'text-brandPrimary', 'bg-brandAccentLight');
+
+        filterCourses();
+      });
+    });
+
+    // Handle expand/collapse tags
+    const expandTagsBtn = document.getElementById('expand-tags-btn');
+    if (expandTagsBtn) {
+      expandTagsBtn.addEventListener('click', () => {
+        const tagList = document.getElementById('tag-list');
+        const hiddenTags = tagList?.querySelectorAll('.tag-filter-btn.hidden') || [];
+
+        if (hiddenTags.length > 0) {
+          hiddenTags.forEach((tag) => tag.classList.remove('hidden'));
+          expandTagsBtn.textContent = 'Pokaż mniej';
+        } else {
+          const allTagButtons = tagList?.querySelectorAll('.tag-filter-btn') || [];
+          allTagButtons.forEach((tag, index) => {
+            if (index >= 8) {
+              tag.classList.add('hidden');
+            }
+          });
+          expandTagsBtn.textContent = `+${allTagButtons.length - 8} więcej`;
+        }
+      });
+    }
+
     if (resetBtn && searchInput) {
       resetBtn.addEventListener('click', () => {
         (searchInput as HTMLInputElement).value = '';
         currentSearchTerm = '';
+        currentTag = 'all';
+
         const defaultFilter = document.querySelector(
           '.filter-btn[data-filter="all"]'
         ) as HTMLElement;
+        const defaultTagFilter = document.querySelector(
+          '.tag-filter-btn[data-tag="all"]'
+        ) as HTMLElement;
+
         if (defaultFilter) {
           defaultFilter.click();
+        }
+        if (defaultTagFilter) {
+          defaultTagFilter.click();
         }
       });
     }

@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -33,7 +33,21 @@ jobs:
           - domain: "eduacademy.pl"
             ip: "185.199.111.153"
     steps:
+      - name: "Check if ${{ matrix.domain }} already resolves to ${{ matrix.ip }}"
+        id: check-dns
+        run: |
+          CURRENT_IP=$(dig +short ${{ matrix.domain }} A | head -n 1)
+          echo "current_ip=$CURRENT_IP" >> $GITHUB_OUTPUT
+          
+          if [ "$CURRENT_IP" = "${{ matrix.ip }}" ]; then
+            echo "DNS already correctly resolves to ${{ matrix.ip }}"
+            echo "should_create=false" >> $GITHUB_OUTPUT
+          else
+            echo "DNS resolves to $CURRENT_IP, need to add ${{ matrix.ip }}"
+            echo "should_create=true" >> $GITHUB_OUTPUT
+          fi
       - name: "Create A record ${{ matrix.domain }} -> ${{ matrix.ip }}"
+        if: steps.check-dns.outputs.should_create == 'true'
         uses: Bluesboy/create-dns-record@v2.1
         with:
           type: "A"
@@ -107,13 +121,36 @@ jobs:
     needs: cleanup-dns
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
       - run: npm ci
+      - name: Format code and commit if needed
+        id: format
+        run: |
+          npm run format
+          if git diff --quiet; then
+            echo "No formatting changes needed"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Code was formatted, committing changes"
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git add .
+            git commit -m "style: auto-format code"
+            git push
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
       - run: npm run lint
       - run: npm run format:check
+      - name: Fail if formatting changes were made
+        if: steps.format.outputs.changes == 'true'
+        run: |
+          echo "Code was formatted and committed. Please pull the changes and try again."
+          exit 1
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

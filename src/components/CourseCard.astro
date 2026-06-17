@@ -5,6 +5,7 @@ interface Props {
       title: string;
       category: string;
       priceFrom: string;
+      tags: string[];
       image?: string;
     };
     id: string;
@@ -43,6 +44,7 @@ const emoji =
     : course.data.category === 'Dla nauczycieli'
       ? 'nauczyciele'
       : 'seniorzy'}
+  data-tags={course.data.tags.join(',')}
 >
   <div class={`h-44 ${categoryClass} flex items-center justify-center relative`}>
     <span
@@ -53,6 +55,24 @@ const emoji =
   </div>
   <div class="p-6 flex-grow flex flex-col">
     <h3 class="text-xl font-bold text-slate-800 mb-2">{course.data.title}</h3>
+
+    {
+      course.data.tags && course.data.tags.length > 0 && (
+        <div class="flex flex-wrap gap-2 mb-4">
+          {course.data.tags.slice(0, 3).map((tag) => {
+            return (
+              <button
+                onclick={`document.querySelector('.tag-filter-btn[data-tag="${tag}"]')?.click(); window.scrollTo({top: document.getElementById('katalog').offsetTop - 100, behavior: 'smooth'});`}
+                class="text-xs text-slate-500 hover:text-brandPrimary transition bg-slate-100 hover:bg-brandAccentLight px-2 py-1 rounded-full cursor-pointer"
+              >
+                {tag}
+              </button>
+            );
+          })}
+        </div>
+      )
+    }
+
     <p class="text-slate-500 text-sm mb-6 flex-grow">
       Kliknij "Szczegóły" aby zobaczyć pełny opis programu.
     </p>

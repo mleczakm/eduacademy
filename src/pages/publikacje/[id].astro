@@ -1,0 +1,119 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const publications = await getCollection('publications');
+  return publications.map((publication) => ({
+    params: { id: publication.id },
+    props: { publication },
+  }));
+}
+
+const { publication } = Astro.props;
+const { Content } = await render(publication);
+
+const formatDate = (date: Date) => {
+  return new Intl.DateTimeFormat('pl-PL', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(date);
+};
+---
+
+<Layout title={publication.data.title}>
+  <section class="py-12 md:py-20 bg-brandBg flex-grow">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <a
+        href="/publikacje"
+        class="flex items-center text-slate-500 hover:text-brandPrimary transition mb-8 group font-bold"
+      >
+        <svg
+          class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg
+        >
+        Wróć do publikacji
+      </a>
+
+      <article class="bg-white rounded-3xl border border-teal-100/50 overflow-hidden shadow-lg">
+        {
+          publication.data.image && (
+            <div class="relative h-64 md:h-80 overflow-hidden">
+              <img
+                src={publication.data.image}
+                alt={publication.data.title}
+                class="w-full h-full object-cover"
+              />
+            </div>
+          )
+        }
+
+        <div class="p-6 md:p-10">
+          <div class="flex flex-wrap items-center gap-3 mb-4">
+            <span
+              class="text-sm font-semibold text-brandPrimary bg-brandAccentLight px-3 py-1 rounded-full"
+            >
+              {formatDate(publication.data.pubDate)}
+            </span>
+            {
+              publication.data.tags && publication.data.tags.length > 0 && (
+                <div class="flex gap-2">
+                  {publication.data.tags.map((tag) => (
+                    <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )
+            }
+          </div>
+
+          <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-4">
+            {publication.data.title}
+          </h1>
+
+          {
+            publication.data.author && (
+              <p class="text-sm text-slate-500 mb-6">Autor: {publication.data.author}</p>
+            )
+          }
+
+          <div class="prose prose-slate max-w-none text-slate-600">
+            <Content />
+          </div>
+
+          {
+            publication.data.pdfFile && (
+              <div class="mt-8 pt-8 border-t border-slate-100">
+                <a
+                  href={publication.data.pdfFile}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2 bg-brandAccent hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-xl transition shadow-md hover:shadow-lg"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  Pobierz PDF
+                </a>
+              </div>
+            )
+          }
+        </div>
+      </article>
+    </div>
+  </section>
+</Layout>

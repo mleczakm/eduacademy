@@ -1,0 +1,47 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PublicationCard from '../components/PublicationCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPublications = await getCollection('publications');
+const sortedPublications = allPublications.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<Layout title="Publikacje">
+  <section class="py-12 md:py-20 bg-brandBg flex-grow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <span
+          class="text-brandPrimary font-bold text-sm tracking-wider uppercase bg-brandAccentLight px-3 py-1 rounded-full"
+          >Nasze Publikacje</span
+        >
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-800 mt-3 mb-4">
+          Artykuły i materiały edukacyjne
+        </h2>
+        <p class="text-slate-500 max-w-xl mx-auto text-base">
+          Odkryj nasze publikacje związane z edukacją, pedagogiką i rozwojem dziecka.
+        </p>
+      </div>
+
+      {
+        sortedPublications.length === 0 ? (
+          <div class="text-center py-16">
+            <span class="text-5xl block mb-4">📚</span>
+            <h3 class="text-xl font-bold text-slate-800">Wkrótce więcej publikacji</h3>
+            <p class="text-slate-500 mt-1">
+              Regularnie dodajemy nowe materiały. Zapraszamy do śledzenia naszej strony.
+            </p>
+          </div>
+        ) : (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {sortedPublications.map((publication) => (
+              <PublicationCard publication={publication} />
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </section>
+</Layout>

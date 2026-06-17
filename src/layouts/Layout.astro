@@ -11,6 +11,7 @@ const isHomepage = currentPath === '/';
 const isAboutPage = currentPath === '/o-nas';
 const isContactPage = currentPath === '/kontakt';
 const isCoursesPage = currentPath.startsWith('/szkolenia');
+const isPublicationsPage = currentPath === '/publikacje';
 ---
 
 <!doctype html>
@@ -81,6 +82,13 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
                 : 'text-slate-600 hover:text-brandPrimary font-medium transition pb-1'}>O nas</a
             >
             <a
+              href="/publikacje"
+              class={isPublicationsPage
+                ? 'text-brandPrimary font-semibold transition border-b-2 border-brandPrimary pb-1'
+                : 'text-slate-600 hover:text-brandPrimary font-medium transition pb-1'}
+              >Publikacje</a
+            >
+            <a
               href="/kontakt"
               class={isContactPage
                 ? 'text-brandPrimary font-semibold transition border-b-2 border-brandPrimary pb-1'
@@ -123,6 +131,12 @@ const isCoursesPage = currentPath.startsWith('/szkolenia');
               class={isAboutPage
                 ? 'text-brandPrimary font-semibold transition'
                 : 'text-slate-600 hover:text-brandPrimary font-medium transition'}>O nas</a
+            >
+            <a
+              href="/publikacje"
+              class={isPublicationsPage
+                ? 'text-brandPrimary font-semibold transition'
+                : 'text-slate-600 hover:text-brandPrimary font-medium transition'}>Publikacje</a
             >
             <a
               href="/kontakt"

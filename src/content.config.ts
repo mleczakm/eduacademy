@@ -22,4 +22,17 @@ const pages = defineCollection({
   }),
 });
 
-export const collections = { courses, pages };
+const publications = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/publications' }),
+  schema: z.object({
+    title: z.string(),
+    pubDate: z.date(),
+    description: z.string(),
+    author: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    image: z.string().optional(),
+    pdfFile: z.string().optional(),
+  }),
+});
+
+export const collections = { courses, pages, publications };

@@ -1,0 +1,85 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import PublicationCard from '../../../components/PublicationCard.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const publications = await getCollection('publications');
+  const tags = new Set<string>();
+
+  for (const pub of publications) {
+    if (pub.data.tags) {
+      pub.data.tags.forEach((tag) => tags.add(tag));
+    }
+  }
+
+  return Array.from(tags).map((tag) => {
+    const tagSlug = tag.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    return {
+      params: { tag: tagSlug },
+      props: { tag },
+    };
+  });
+}
+
+const { tag } = Astro.props;
+const publications = await getCollection('publications');
+const filteredPublications = publications.filter((pub) => pub.data.tags?.includes(tag));
+
+const sortedPublications = filteredPublications.sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<Layout title={`Publikacje: ${tag}`}>
+  <section class="py-12 md:py-20 bg-brandBg flex-grow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <span
+          class="text-brandPrimary font-bold text-sm tracking-wider uppercase bg-brandAccentLight px-3 py-1 rounded-full"
+          >Tag: {tag}</span
+        >
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-800 mt-3 mb-4">
+          Publikacje oznaczone jako "{tag}"
+        </h2>
+        <p class="text-slate-500 max-w-xl mx-auto text-base">
+          Znaleziono {sortedPublications.length} publikacji z tym tagiem.
+        </p>
+      </div>
+
+      <a
+        href="/publikacje"
+        class="inline-flex items-center text-slate-500 hover:text-brandPrimary transition mb-8 group font-bold"
+      >
+        <svg
+          class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg
+        >
+        Wróć do wszystkich publikacji
+      </a>
+
+      {
+        sortedPublications.length === 0 ? (
+          <div class="text-center py-16">
+            <span class="text-5xl block mb-4">🔍</span>
+            <h3 class="text-xl font-bold text-slate-800">Brak publikacji z tym tagiem</h3>
+            <p class="text-slate-500 mt-1">Sprawdź inne tagi lub wróć do wszystkich publikacji.</p>
+          </div>
+        ) : (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {sortedPublications.map((publication) => (
+              <PublicationCard publication={publication} />
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </section>
+</Layout>
