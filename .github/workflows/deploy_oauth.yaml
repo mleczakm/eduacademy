@@ -1,0 +1,50 @@
+name: Deploy OAuth Proxy to Vercel
+
+on:
+  # Możesz odkomentować poniższe linie, aby wdrażać proxy przy każdym pushu na main
+  push:
+    branches: [ main ]
+  
+  # Pozwala na ręczne odpalenie tego zadania z zakładki "Actions" w GitHubie
+  workflow_dispatch:
+
+jobs:
+  deploy-oauth-server:
+    runs-on: ubuntu-latest
+    name: Build & Deploy Decap OAuth Proxy
+    
+    steps:
+      # 1. Klonuje gotowy, w 100% działający kod serwera OAuth
+      # (Zamiast trzymać ten kod w Twoim repozytorium Astro, pobieramy go w locie)
+      - name: Checkout Community OAuth Server Code
+        uses: actions/checkout@v4
+        with:
+          repository: ublabs/decap-cms-oauth
+          
+      # 2. Instaluje oficjalne narzędzie Vercel CLI
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+        
+      # 3. Pobiera powiązanie z Twoim projektem na Vercelu
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          
+      # 4. Buduje projekt
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          
+      # 5. Wdraża serwer na Vercel i wstrzykuje sekrety GitHuba z Twojego repo
+      - name: Deploy to Vercel
+        run: >
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+          -e OAUTH_GITHUB_CLIENT_ID=${{ secrets.CMS_GITHUB_CLIENT_ID }}
+          -e OAUTH_GITHUB_CLIENT_SECRET=${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
