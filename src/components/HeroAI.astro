@@ -1,5 +1,5 @@
 ---
-import { ChatInterface } from './ChatInterface';
+import ChatInterface from './ChatInterface.astro';
 ---
 
 <section
@@ -41,7 +41,7 @@ import { ChatInterface } from './ChatInterface';
       </div>
 
       <div class="relative z-10 transform transition-all hover:scale-[1.01]">
-        <ChatInterface client:idle />
+        <ChatInterface />
       </div>
     </div>
   </div>

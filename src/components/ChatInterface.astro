@@ -1,0 +1,503 @@
+---
+const chatId = 'chat-container';
+---
+
+<div
+  id={chatId}
+  data-chat-id={chatId}
+  class="bg-white rounded-xl shadow-xl border border-slate-100 w-full overflow-hidden flex flex-col h-[500px]"
+>
+  <!-- Header -->
+  <div
+    class="bg-brandPrimary text-white px-5 py-4 flex justify-between items-center shadow-sm z-10"
+  >
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">
+        🐨
+      </div>
+      <div>
+        <h4 class="font-bold text-base">Asystent Akademii</h4>
+        <span class="text-xs text-brandAccentLight flex items-center gap-1">
+          <span class="status-indicator w-2 h-2 rounded-full inline-block bg-green-400"></span>
+          <span class="status-text">Gotowy do rozmowy</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages-container flex-1 overflow-y-auto p-5 space-y-5 bg-brandSlate text-sm">
+    <div class="flex items-start gap-2.5">
+      <div
+        class="w-8 h-8 rounded-xl bg-brandAccentLight flex-shrink-0 flex items-center justify-center text-lg mt-0.5"
+      >
+        🐨
+      </div>
+      <div
+        class="bg-white border border-slate-100 text-slate-700 p-3.5 rounded-xl rounded-tl-none shadow-sm max-w-[85%] leading-relaxed"
+      >
+        Cześć! Pomagam dobrać najciekawsze zajęcia i warsztaty w Future Edu Academy. Dla kogo dziś
+        szukasz inspiracji? 😊
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <form class="p-4 border-t border-slate-100 bg-white flex gap-2">
+    <input
+      type="text"
+      placeholder="Opisz swoje potrzeby..."
+      class="flex-grow bg-brandSlate border border-transparent rounded-xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brandPrimary focus:bg-white transition"
+    />
+    <button
+      type="submit"
+      class="bg-brandPrimary hover:bg-brandPrimaryDark text-white p-3 rounded-xl transition flex-shrink-0"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+      </svg>
+    </button>
+  </form>
+</div>
+
+<script>
+  // @ts-nocheck
+  const container = document.querySelector('[data-chat-id]');
+  const chatId = container ? container.getAttribute('data-chat-id') : null;
+
+  if (!chatId) {
+    console.error('Chat container not found');
+  }
+
+  class ElevenLabsClient {
+    constructor(config) {
+      this._ws = null;
+      this._agentId = config.agentId;
+      this._apiKey = config.apiKey;
+      this._config = config;
+      this._status = 'disconnected';
+      this._reconnectAttempts = 0;
+      this._maxReconnectAttempts = 3;
+      this._reconnectDelay = 1000;
+    }
+
+    _setStatus(status) {
+      this._status = status;
+      if (this._config.onStatusChange) {
+        this._config.onStatusChange(status);
+      }
+    }
+
+    connect() {
+      return new Promise((resolve, reject) => {
+        if (
+          this._ws &&
+          (this._ws.readyState === WebSocket.CONNECTING || this._ws.readyState === WebSocket.OPEN)
+        ) {
+          resolve();
+          return;
+        }
+
+        this._setStatus('connecting');
+
+        const wsUrl = 'wss://api.elevenlabs.io/v1/convai/conversation?agent_id=' + this._agentId;
+        this._ws = new WebSocket(wsUrl);
+
+        this._ws.onopen = () => {
+          console.log('WebSocket connected');
+          this._setStatus('connected');
+          this._reconnectAttempts = 0;
+          
+          // Send conversation history as contextual update to maintain context
+          this._sendContextualUpdate();
+          
+          resolve();
+        };
+
+        this._ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log('WebSocket message received:', data);
+
+            // Handle different response types from ElevenLabs
+            if (data.type === 'agent_response') {
+              const content =
+                data.agent_response_event?.text || data.content || data.text || data.message;
+              if (content && this._config.onMessage) {
+                this._config.onMessage({
+                  role: 'agent',
+                  text: content,
+                  isComplete: true,
+                });
+              }
+            } else if (data.type === 'conversation_done') {
+              const content = data.content || data.text || data.message;
+              if (content && this._config.onMessage) {
+                this._config.onMessage({
+                  role: 'agent',
+                  text: content,
+                  isComplete: true,
+                });
+              }
+            } else if (data.type === 'agent_chat_response_part') {
+              const textPart = data.text_response_part;
+              if (textPart) {
+                if (textPart.type === 'delta' && textPart.text) {
+                  // Accumulate delta text
+                  if (this._config.onMessage) {
+                    this._config.onMessage({
+                      role: 'agent',
+                      text: textPart.text,
+                      isDelta: true,
+                    });
+                  }
+                } else if (textPart.type === 'stop') {
+                  // Signal that the response is complete
+                  if (this._config.onMessage) {
+                    this._config.onMessage({
+                      role: 'agent',
+                      text: '',
+                      isComplete: true,
+                    });
+                  }
+                }
+              }
+            } else if (data.type === 'audio' || data.type === 'text') {
+              const content = data.content || data.text || data.message;
+              if (content && this._config.onMessage) {
+                this._config.onMessage({
+                  role: 'agent',
+                  text: content,
+                });
+              }
+            } else if (data.type === 'error') {
+              console.error('ElevenLabs error:', data);
+              if (this._config.onError) {
+                this._config.onError(data.error || data.message || 'Unknown error');
+              }
+            } else {
+              console.log('Unhandled message type:', data.type, data);
+            }
+          } catch (e) {
+            console.error('Failed to parse WebSocket message:', e);
+            console.error('Raw message:', event.data);
+          }
+        };
+
+        this._ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          this._setStatus('error');
+          if (this._config.onError) {
+            this._config.onError('Connection error');
+          }
+          reject(error);
+        };
+
+        this._ws.onclose = (event) => {
+          console.log('WebSocket closed, code:', event.code, 'reason:', event.reason);
+          this._setStatus('disconnected');
+        };
+      });
+    }
+
+    sendMessage(text) {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      var self = this;
+      return new Promise((resolve, reject) => {
+        self
+          .connect()
+          .then(() => {
+            if (!self._ws || self._ws.readyState !== WebSocket.OPEN) {
+              reject(new Error('WebSocket is not connected'));
+              return;
+            }
+
+            // Send conversation initiation message with text_only config (matching React client)
+            var configMessage = {
+              type: 'conversation_initiation_client_data',
+              conversation_config_override: {
+                agent: {},
+                tts: {},
+                conversation: {
+                  text_only: true,
+                },
+              },
+              source_info: {
+                source: 'react_sdk',
+                version: '1.6.6',
+              },
+            };
+
+            // Send user message
+            var userMessage = {
+              type: 'user_message',
+              text: text,
+            };
+
+            console.log('Sending config:', configMessage);
+            console.log('Sending message:', userMessage);
+
+            self._ws.send(JSON.stringify(configMessage));
+            self._ws.send(JSON.stringify(userMessage));
+            resolve();
+          })
+          .catch((error) => {
+            console.error('Failed to send message:', error);
+            if (self._config.onError) {
+              self._config.onError('Failed to send message');
+            }
+            reject(error);
+          });
+      });
+    }
+
+    disconnect() {
+      if (this._ws) {
+        this._ws.close();
+        this._ws = null;
+      }
+      this._setStatus('disconnected');
+    }
+
+    _sendContextualUpdate() {
+      var savedHistory = localStorage.getItem('chat_history');
+      if (savedHistory) {
+        try {
+          var messages = JSON.parse(savedHistory);
+          if (messages.length > 0) {
+            var contextText = messages.map(function (m) {
+              return (m.role === 'user' ? 'User: ' : 'Assistant: ') + m.text;
+            }).join('\n');
+            
+            var contextualUpdate = {
+              type: 'contextual_update',
+              text: 'Previous conversation context:\n' + contextText
+            };
+            
+            console.log('Sending contextual update:', contextualUpdate);
+            this._ws.send(JSON.stringify(contextualUpdate));
+          }
+        } catch (e) {
+          console.error('Failed to send contextual update:', e);
+        }
+      }
+    }
+
+    getStatus() {
+      return this._status;
+    }
+  }
+
+  var AGENT_ID = 'agent_2501ktwm893ffmwt20a3v29eg57q';
+
+  class ChatUI {
+    constructor(containerId) {
+      var container = document.getElementById(containerId);
+      if (!container) {
+        throw new Error('Container with id "' + containerId + '" not found');
+      }
+      this._container = container;
+      this._messages = [];
+      this._currentAgentMessage = ''; // Accumulate delta parts
+      this._client = new ElevenLabsClient({
+        agentId: AGENT_ID,
+        apiKey: null, // Add your API key here if needed
+        onMessage: this._handleAgentMessage.bind(this),
+        onStatusChange: this._handleStatusChange.bind(this),
+        onError: function (error) {
+          console.error('Chat error:', error);
+        },
+      });
+
+      this._initializeElements();
+      this._loadHistory();
+      this._renderMessages();
+      this._setupEventListeners();
+    }
+
+    _initializeElements() {
+      this._input = this._container.querySelector('input[type="text"]');
+      this._form = this._container.querySelector('form');
+      this._submitButton = this._container.querySelector('button[type="submit"]');
+      this._statusIndicator = this._container.querySelector('.status-indicator');
+      this._statusText = this._container.querySelector('.status-text');
+    }
+
+    _loadHistory() {
+      var saved = localStorage.getItem('chat_history');
+      if (saved) {
+        try {
+          this._messages = this._dedupeMessages(JSON.parse(saved));
+        } catch (e) {
+          console.error('Failed to parse chat history:', e);
+        }
+      }
+    }
+
+    _saveHistory() {
+      if (this._messages.length > 0) {
+        localStorage.setItem('chat_history', JSON.stringify(this._messages));
+      }
+    }
+
+    _dedupeMessages(messages) {
+      return messages.filter(function (msg, idx) {
+        if (idx === 0) return true;
+        var prev = messages[idx - 1];
+        return !(msg.role === prev.role && msg.text === prev.text);
+      });
+    }
+
+    _handleAgentMessage(message) {
+      // Check if this is a delta part (from agent_chat_response_part)
+      if (message.isDelta) {
+        this._currentAgentMessage += message.text;
+        return; // Don't render yet, wait for complete message
+      }
+
+      // Check if this is a complete message (from conversation_done)
+      if (message.isComplete) {
+        if (this._currentAgentMessage) {
+          message.text = this._currentAgentMessage;
+          this._currentAgentMessage = '';
+        }
+        if (
+          this._messages.some((m) => {
+            return m.role === 'agent' && m.text === message.text;
+          })
+        ) {
+          return;
+        }
+        this._messages.push(message);
+        this._saveHistory();
+        this._renderMessages();
+      }
+    }
+
+    _handleStatusChange(status) {
+      if (!this._statusIndicator || !this._statusText) return;
+
+      this._statusIndicator.className = 'status-indicator w-2 h-2 rounded-full inline-block';
+
+      switch (status) {
+        case 'connected':
+          this._statusIndicator.classList.add('bg-green-400');
+          this._statusText.textContent = 'Chętnie doradzę';
+          this._submitButton.disabled = false;
+          this._submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+          break;
+        case 'connecting':
+          this._statusIndicator.classList.add('bg-yellow-400');
+          this._statusText.textContent = 'Łączenie...';
+          this._submitButton.disabled = true;
+          this._submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+          break;
+        case 'disconnected':
+          this._statusIndicator.classList.add('bg-green-400');
+          this._statusText.textContent = 'Gotowy do rozmowy';
+          this._submitButton.disabled = false;
+          this._submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+          break;
+        case 'error':
+          this._statusIndicator.classList.add('bg-red-400');
+          this._statusText.textContent = 'Błąd połączenia';
+          this._submitButton.disabled = false;
+          this._submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+          break;
+      }
+    }
+
+    _renderMessages() {
+      var messagesContainer = this._container.querySelector('.messages-container');
+      if (!messagesContainer) return;
+
+      if (this._messages.length === 0) {
+        messagesContainer.innerHTML =
+          '<div class="flex items-start gap-2.5"><div class="w-8 h-8 rounded-xl bg-brandAccentLight flex-shrink-0 flex items-center justify-center text-lg mt-0.5">🐨</div><div class="bg-white border border-slate-100 text-slate-700 p-3.5 rounded-xl rounded-tl-none shadow-sm max-w-[85%] leading-relaxed">Cześć! Pomagam dobrać najciekawsze zajęcia i warsztaty w Future Edu Academy. Dla kogo dziś szukasz inspiracji? 😊</div></div>';
+      } else {
+        messagesContainer.innerHTML = this._messages
+          .map((msg) => {
+            var isUser = msg.role === 'user';
+            return (
+              '<div class="flex items-start gap-2.5 ' +
+              (isUser ? 'flex-row-reverse' : '') +
+              '"><div class="w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center text-lg mt-0.5 ' +
+              (isUser ? 'bg-brandPrimary/20' : 'bg-brandAccentLight') +
+              '">' +
+              (isUser ? '👩' : '🐨') +
+              '</div><div class="p-3.5 rounded-xl shadow-sm max-w-[85%] leading-relaxed ' +
+              (isUser
+                ? 'bg-brandPrimary text-white rounded-tr-none'
+                : 'bg-white border border-slate-100 text-slate-700 rounded-tl-none') +
+              '">' +
+              this._escapeHtml(msg.text) +
+              '</div></div>'
+            );
+          })
+          .join('');
+      }
+
+      this._scrollToBottom();
+    }
+
+    _escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    _scrollToBottom() {
+      var messagesContainer = this._container.querySelector('.messages-container');
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    }
+
+    _setupEventListeners() {
+      this._form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this._handleSubmit();
+      });
+
+      this._input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this._handleSubmit();
+        }
+      });
+    }
+
+    _handleSubmit() {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      var self = this;
+      var text = this._input.value.trim();
+      if (!text) return;
+
+      this._messages.push({ role: 'user', text: text });
+      this._saveHistory();
+      this._renderMessages();
+      this._input.value = '';
+
+      this._client
+        .sendMessage(text)
+        .then(() => {
+          // Success
+        })
+        .catch((error) => {
+          console.error('Failed to send message:', error);
+          self._messages.pop();
+          self._saveHistory();
+          self._renderMessages();
+          self._input.value = text;
+        });
+    }
+  }
+
+  if (chatId) {
+    new ChatUI(chatId);
+  }
+</script>
