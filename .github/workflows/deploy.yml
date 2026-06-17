@@ -1,4 +1,4 @@
-name: Deploy to Netlify
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -7,24 +7,31 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 concurrency:
-  group: "netlify"
+  group: "pages"
   cancel-in-progress: false
 
 jobs:
   add-dns:
     environment:
       name: github-pages
-    name: Dodaj wpisy DNS
+    name: Add DNS records for GitHub Pages
     runs-on: ubuntu-latest
     strategy:
-      # serialise calls to avoid Cloudflare rate limits
       max-parallel: 1
       matrix:
         include:
           - domain: "eduacademy.pl"
-            ip: "75.2.60.5"
+            ip: "185.199.108.153"
+          - domain: "eduacademy.pl"
+            ip: "185.199.109.153"
+          - domain: "eduacademy.pl"
+            ip: "185.199.110.153"
+          - domain: "eduacademy.pl"
+            ip: "185.199.111.153"
     steps:
       - name: "Create A record ${{ matrix.domain }} -> ${{ matrix.ip }}"
         uses: Bluesboy/create-dns-record@v2.1
@@ -51,7 +58,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          DESIRED_IPS=("75.2.60.5")
+          DESIRED_IPS=("185.199.108.153" "185.199.109.153" "185.199.110.153" "185.199.111.153")
           DOMAINS=("eduacademy.pl")
 
           for domain in "${DOMAINS[@]}"; do
@@ -95,9 +102,9 @@ jobs:
 
           echo "✓ DNS cleanup complete"
 
-  ci:
-    name: Lint and build
+  build:
     runs-on: ubuntu-latest
+    needs: cleanup-dns
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -108,3 +115,16 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
