@@ -2,8 +2,8 @@ name: Deploy OAuth Proxy to Vercel
 
 on:
   # Możesz odkomentować poniższe linie, aby wdrażać proxy przy każdym pushu na main
-  push:
-    branches: [ main ]
+#  push:
+#    branches: [ main ]
 
   # Pozwala na ręczne odpalenie tego zadania z zakładki "Actions" w GitHubie
   workflow_dispatch:
