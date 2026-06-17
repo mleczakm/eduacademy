@@ -1,3 +1,18 @@
+interface ChatMessage {
+  role: 'user' | 'agent';
+  text: string;
+  isDelta?: boolean;
+  isComplete?: boolean;
+}
+
+interface ClientConfig {
+  agentId: string;
+  apiKey: string | null;
+  onMessage: (message: ChatMessage) => void;
+  onStatusChange: (status: string) => void;
+  onError: (error: string) => void;
+}
+
 const container = document.querySelector('[data-chat-id]');
 const chatId = container ? container.getAttribute('data-chat-id') : null;
 
@@ -9,13 +24,13 @@ class ElevenLabsClient {
   _ws: WebSocket | null;
   _agentId: string;
   _apiKey: string | null;
-  _config: any;
+  _config: ClientConfig;
   _status: string;
   _reconnectAttempts: number;
   _maxReconnectAttempts: number;
   _reconnectDelay: number;
 
-  constructor(config: any) {
+  constructor(config: ClientConfig) {
     this._ws = null;
     this._agentId = config.agentId;
     this._apiKey = config.apiKey;
@@ -146,12 +161,10 @@ class ElevenLabsClient {
   }
 
   sendMessage(text: string): Promise<void> {
-    const self = this;
     return new Promise((resolve, reject) => {
-      self
-        .connect()
+      this.connect()
         .then(() => {
-          if (!self._ws || self._ws.readyState !== WebSocket.OPEN) {
+          if (!this._ws || this._ws.readyState !== WebSocket.OPEN) {
             reject(new Error('WebSocket is not connected'));
             return;
           }
@@ -181,14 +194,14 @@ class ElevenLabsClient {
           console.log('Sending config:', configMessage);
           console.log('Sending message:', userMessage);
 
-          self._ws.send(JSON.stringify(configMessage));
-          self._ws.send(JSON.stringify(userMessage));
+          this._ws.send(JSON.stringify(configMessage));
+          this._ws.send(JSON.stringify(userMessage));
           resolve();
         })
         .catch((error) => {
           console.error('Failed to send message:', error);
-          if (self._config.onError) {
-            self._config.onError('Failed to send message');
+          if (this._config.onError) {
+            this._config.onError('Failed to send message');
           }
           reject(error);
         });
@@ -207,10 +220,10 @@ class ElevenLabsClient {
     const savedHistory = localStorage.getItem('chat_history');
     if (savedHistory) {
       try {
-        const messages = JSON.parse(savedHistory);
+        const messages = JSON.parse(savedHistory) as ChatMessage[];
         if (messages.length > 0) {
           const contextText = messages
-            .map(function (m: any) {
+            .map((m: ChatMessage) => {
               return (m.role === 'user' ? 'User: ' : 'Assistant: ') + m.text;
             })
             .join('\n');
@@ -238,7 +251,7 @@ const AGENT_ID = 'agent_2501ktwm893ffmwt20a3v29eg57q';
 
 class ChatUI {
   _container: HTMLElement;
-  _messages: any[];
+  _messages: ChatMessage[];
   _currentAgentMessage: string;
   _client: ElevenLabsClient;
   _input: HTMLInputElement | null;
@@ -312,15 +325,15 @@ class ChatUI {
     }
   }
 
-  _dedupeMessages(messages: any[]): any[] {
-    return messages.filter(function (msg, idx) {
+  _dedupeMessages(messages: ChatMessage[]): ChatMessage[] {
+    return messages.filter((msg, idx) => {
       if (idx === 0) return true;
       const prev = messages[idx - 1];
       return !(msg.role === prev.role && msg.text === prev.text);
     });
   }
 
-  _handleAgentMessage(message: any): void {
+  _handleAgentMessage(message: ChatMessage): void {
     // Check if this is a delta part (from agent_chat_response_part)
     if (message.isDelta) {
       this._currentAgentMessage += message.text;
@@ -454,7 +467,6 @@ class ChatUI {
   }
 
   _handleSubmit(): void {
-    const self = this;
     const text = this._input.value.trim();
     if (!text) return;
 
@@ -470,10 +482,10 @@ class ChatUI {
       })
       .catch((error) => {
         console.error('Failed to send message:', error);
-        self._messages.pop();
-        self._saveHistory();
-        self._renderMessages();
-        self._input.value = text;
+        this._messages.pop();
+        this._saveHistory();
+        this._renderMessages();
+        this._input.value = text;
       });
   }
 
