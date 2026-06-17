@@ -4,7 +4,7 @@ on:
   # Możesz odkomentować poniższe linie, aby wdrażać proxy przy każdym pushu na main
   push:
     branches: [ main ]
-  
+
   # Pozwala na ręczne odpalenie tego zadania z zakładki "Actions" w GitHubie
   workflow_dispatch:
 
@@ -12,35 +12,113 @@ jobs:
   deploy-oauth-server:
     runs-on: ubuntu-latest
     name: Build & Deploy Decap OAuth Proxy
-    
+
     steps:
-      # 1. Klonuje gotowy, w 100% działający kod serwera OAuth
-      # (Zamiast trzymać ten kod w Twoim repozytorium Astro, pobieramy go w locie)
-      - name: Checkout Community OAuth Server Code
-        uses: actions/checkout@v4
-        with:
-          repository: ublabs/decap-cms-oauth
+      # 1. Tworzy czysty katalog na nasz mikro-serwer (izolacja od kodu Astro)
+      - name: Setup Proxy Directory
+        run: mkdir proxy-app
+
+      # 2. Generuje sprawdzony kod proxy OAuth (bezpośrednio, by uniknąć niedziałających zewnętrznych repo)
+      - name: Generate OAuth Code
+        working-directory: ./proxy-app
+        run: |
+          mkdir -p api
           
-      # 2. Instaluje oficjalne narzędzie Vercel CLI
+          cat << 'EOF' > api/auth.js
+          export default function handler(req, res) {
+            const { host } = req.headers;
+            const url = new URL('https://github.com/login/oauth/authorize');
+            url.searchParams.set('client_id', process.env.OAUTH_GITHUB_CLIENT_ID);
+            url.searchParams.set('redirect_uri', `https://${host}/api/callback`);
+            url.searchParams.set('scope', 'repo,user');
+            res.redirect(url.toString());
+          }
+          EOF
+          
+          cat << 'EOF' > api/callback.js
+          export default async function handler(req, res) {
+            const { code } = req.query;
+          
+            try {
+              const response = await fetch('https://github.com/login/oauth/access_token', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  client_id: process.env.OAUTH_GITHUB_CLIENT_ID,
+                  client_secret: process.env.OAUTH_GITHUB_CLIENT_SECRET,
+                  code,
+                }),
+              });
+          
+              const data = await response.json();
+              const token = data.access_token;
+          
+              const script = `
+                <script>
+                  const receiveMessage = (message) => {
+                    window.opener.postMessage(
+                      'authorization:github:success:{"token":"${token}","provider":"github"}',
+                      message.origin
+                    );
+                    window.removeEventListener('message', receiveMessage, false);
+                  };
+                  window.addEventListener('message', receiveMessage, false);
+                  window.opener.postMessage('authorizing:github', '*');
+                </script>
+              `;
+          
+              res.setHeader('Content-Type', 'text/html');
+              res.send(script);
+            } catch (error) {
+              res.status(500).send(error.message);
+            }
+          }
+          EOF
+          
+          cat << 'EOF' > vercel.json
+          {
+            "version": 2,
+            "rewrites": [
+              { "source": "/auth", "destination": "/api/auth" },
+              { "source": "/callback", "destination": "/api/callback" }
+            ]
+          }
+          EOF
+          
+          cat << 'EOF' > package.json
+          {
+            "name": "decap-oauth-proxy",
+            "version": "1.0.0",
+            "type": "module"
+          }
+          EOF
+
+      # 3. Instaluje oficjalne narzędzie Vercel CLI
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
-        
-      # 3. Pobiera powiązanie z Twoim projektem na Vercelu
+
+      # 4. Pobiera powiązanie z Twoim projektem na Vercelu (wymaga VERCEL_ORG_ID i VERCEL_PROJECT_ID w Secrets)
       - name: Pull Vercel Environment Information
+        working-directory: ./proxy-app
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          
-      # 4. Buduje projekt
+
+      # 5. Buduje wygenerowany projekt
       - name: Build Project Artifacts
+        working-directory: ./proxy-app
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          
-      # 5. Wdraża serwer na Vercel i wstrzykuje sekrety GitHuba z Twojego repo
+
+      # 6. Wdraża serwer na Vercel i bezpiecznie wstrzykuje sekrety GitHuba ze środowiska
       - name: Deploy to Vercel
+        working-directory: ./proxy-app
         run: >
           vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
           -e OAUTH_GITHUB_CLIENT_ID=${{ secrets.CMS_GITHUB_CLIENT_ID }}
