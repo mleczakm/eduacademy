@@ -8,5 +8,233 @@
 <body>
   <!-- Include the script that builds the page and powers Decap CMS -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <!-- Custom preview styles -->
+  <script>
+    // Register custom preview styles using Decap CMS API
+    CMS.registerPreviewStyle('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+    CMS.registerPreviewStyle(`
+      .decap-cms-preview-content {
+        font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+        color: #475569;
+        line-height: 1.75;
+        padding: 1.5rem;
+      }
+      
+      .decap-cms-preview-content h1 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+      }
+      
+      .decap-cms-preview-content h2 {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-top: 1.75rem;
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+      }
+      
+      .decap-cms-preview-content h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+      }
+      
+      .decap-cms-preview-content p {
+        margin-bottom: 1.25rem;
+      }
+      
+      .decap-cms-preview-content a {
+        color: #0d9488;
+        text-decoration: underline;
+        font-weight: 500;
+      }
+      
+      .decap-cms-preview-content a:hover {
+        color: #0f766e;
+      }
+      
+      .decap-cms-preview-content ul,
+      .decap-cms-preview-content ol {
+        margin-bottom: 1.25rem;
+        padding-left: 1.5rem;
+      }
+      
+      .decap-cms-preview-content li {
+        margin-bottom: 0.5rem;
+      }
+      
+      .decap-cms-preview-content ul li {
+        list-style-type: disc;
+      }
+      
+      .decap-cms-preview-content ol li {
+        list-style-type: decimal;
+      }
+      
+      .decap-cms-preview-content blockquote {
+        border-left: 4px solid #0d9488;
+        padding-left: 1rem;
+        margin: 1.5rem 0;
+        font-style: italic;
+        color: #64748b;
+      }
+      
+      .decap-cms-preview-content code {
+        background-color: #f1f5f9;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+        font-size: 0.875em;
+        font-family: monospace;
+      }
+      
+      .decap-cms-preview-content pre {
+        background-color: #1e293b;
+        color: #f1f5f9;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        margin: 1.5rem 0;
+      }
+      
+      .decap-cms-preview-content pre code {
+        background-color: transparent;
+        padding: 0;
+        color: inherit;
+      }
+      
+      .decap-cms-preview-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+        margin: 1.5rem 0;
+      }
+      
+      .decap-cms-preview-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+      }
+      
+      .decap-cms-preview-content th,
+      .decap-cms-preview-content td {
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem;
+        text-align: left;
+      }
+      
+      .decap-cms-preview-content th {
+        background-color: #f1f5f9;
+        font-weight: 600;
+      }
+      
+      .decap-cms-preview-content hr {
+        border: none;
+        border-top: 2px solid #e2e8f0;
+        margin: 2rem 0;
+      }
+      
+      .decap-cms-preview-content strong {
+        font-weight: 700;
+        color: #1e293b;
+      }
+      
+      .decap-cms-preview-content em {
+        font-style: italic;
+      }
+    `, { raw: true });
+
+    // Register preview for courses
+    var CoursePreview = createClass({
+      render: function() {
+        var entry = this.props.entry;
+        var image = entry.getIn(['data', 'image']);
+        var bg = image ? this.props.getAsset(image) : null;
+        
+        return h('div', { className: 'decap-cms-preview-content' }, [
+          h('h1', {}, entry.getIn(['data', 'title'])),
+          h('p', { style: { color: '#64748b', marginBottom: '1rem' } }, 
+            'Kategoria: ' + entry.getIn(['data', 'category'])
+          ),
+          entry.getIn(['data', 'tags']) && entry.getIn(['data', 'tags']).size > 0 && 
+            h('div', { style: { marginBottom: '1rem' } }, 
+              entry.getIn(['data', 'tags']).map(function(tag) {
+                return h('span', { 
+                  style: { 
+                    display: 'inline-block',
+                    backgroundColor: '#f1f5f9',
+                    color: '#64748b',
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '9999px',
+                    fontSize: '0.75rem',
+                    marginRight: '0.5rem',
+                    marginBottom: '0.5rem'
+                  }
+                }, tag);
+              })
+            ),
+          entry.getIn(['data', 'priceFrom']) &&
+            h('p', { style: { color: '#0d9488', fontWeight: '600', marginBottom: '1rem' } }, 
+              'Cena od: ' + entry.getIn(['data', 'priceFrom'])
+            ),
+          bg && h('img', { src: bg.toString(), style: { maxWidth: '100%', borderRadius: '0.5rem', marginBottom: '1.5rem' } }),
+          this.props.widgetFor('body')
+        ]);
+      }
+    });
+
+    CMS.registerPreviewTemplate('courses', CoursePreview);
+
+    // Register preview for publications
+    var PublicationPreview = createClass({
+      render: function() {
+        var entry = this.props.entry;
+        var image = entry.getIn(['data', 'image']);
+        var bg = image ? this.props.getAsset(image) : null;
+        
+        return h('div', { className: 'decap-cms-preview-content' }, [
+          h('h1', {}, entry.getIn(['data', 'title'])),
+          h('p', { style: { color: '#64748b', marginBottom: '1rem' } }, 
+            'Data: ' + entry.getIn(['data', 'date'])
+          ),
+          entry.getIn(['data', 'author']) &&
+            h('p', { style: { color: '#64748b', marginBottom: '1rem' } }, 
+              'Autor: ' + entry.getIn(['data', 'author'])
+            ),
+          bg && h('img', { src: bg.toString(), style: { maxWidth: '100%', borderRadius: '0.5rem', marginBottom: '1.5rem' } }),
+          this.props.widgetFor('body')
+        ]);
+      }
+    });
+
+    CMS.registerPreviewTemplate('publications', PublicationPreview);
+
+    // Register preview for pages
+    var PagePreview = createClass({
+      render: function() {
+        var entry = this.props.entry;
+        
+        return h('div', { className: 'decap-cms-preview-content' }, [
+          h('h1', {}, entry.getIn(['data', 'title'])),
+          this.props.widgetFor('body')
+        ]);
+      }
+    });
+
+    // Register preview for individual page files (file collection)
+    CMS.registerPreviewTemplate('about', PagePreview);
+    CMS.registerPreviewTemplate('parents', PagePreview);
+    CMS.registerPreviewTemplate('kontakt', PagePreview);
+    CMS.registerPreviewTemplate('regulamin', PagePreview);
+    CMS.registerPreviewTemplate('polityka-prywatnosci', PagePreview);
+  </script>
 </body>
 </html>
