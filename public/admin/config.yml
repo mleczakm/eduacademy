@@ -6,35 +6,67 @@ media_folder: "public/assets"
 public_folder: "/assets"
 
 collections:
+  # 1. SZKOLENIA (Katalog)
   - name: "courses"
     label: "Szkolenia"
     folder: "src/content/courses"
     create: true
-    slug: "{{slug}}"
+    slug: "{{year}}-{{month}}-{{slug}}"
     fields:
       - { label: "Tytuł szkolenia", name: "title", widget: "string" }
-      - { label: "Kategoria", name: "category", widget: "select", options: ["dzieci", "nauczyciele", "seniorzy"], default: "dzieci" }
-      - { label: "Tagi", name: "tags", widget: "list", field: { widget: "string" } }
-      - { label: "Cena od", name: "priceFrom", widget: "string" }
-      - { label: "Zdjęcie wyróżniające", name: "image", widget: "image" }
-      - { label: "Pełny opis programu", name: "content", widget: "markdown" }
+      - { label: "Kategoria docelowa", name: "category", widget: "select", options: ["Dla dzieci", "Dla nauczycieli", "Dla seniorów"] }
+      - { label: "Tagi (oddzielone przecinkiem)", name: "tags", widget: "list" }
+      - { label: "Cena od (np. 120 zł)", name: "priceFrom", widget: "string" }
+      - { label: "Zdjęcie wyróżniające", name: "image", widget: "image", required: false }
+      - { label: "Załącznik PDF (np. program)", name: "pdfFile", widget: "file", required: false }
+      - { label: "Pełny opis programu", name: "body", widget: "markdown" }
 
+  # 2. PUBLIKACJE (Artykuły)
   - name: "publications"
     label: "Publikacje"
     folder: "src/content/publications"
     create: true
-    slug: "{{slug}}"
     fields:
       - { label: "Tytuł", name: "title", widget: "string" }
       - { label: "Data", name: "date", widget: "datetime" }
-      - { label: "Treść", name: "content", widget: "markdown" }
+      - { label: "Treść", name: "body", widget: "markdown" }
 
+  # 3. STRONY STATYCZNE (O nas, Dla rodzica, Kontakt)
   - name: "pages"
     label: "Strony Informacyjne"
-    folder: "src/content/pages"
-    create: true
-    slug: "{{slug}}"
-    fields:
-      - { label: "Tytuł strony", name: "title", widget: "string" }
-      - { label: "Slug (URL)", name: "slug", widget: "string" }
-      - { label: "Treść", name: "content", widget: "markdown" }
+    files:
+      - file: "src/content/pages/about.md"
+        label: "O nas"
+        name: "about"
+        fields:
+          - { label: "Tytuł strony", name: "title", widget: "string" }
+          - { label: "Slug (URL)", name: "slug", widget: "string" }
+          - { label: "Treść", name: "body", widget: "markdown" }
+      - file: "src/content/pages/parents.md"
+        label: "Dla rodzica"
+        name: "parents"
+        fields:
+          - { label: "Tytuł strony", name: "title", widget: "string" }
+          - { label: "Slug (URL)", name: "slug", widget: "string" }
+          - { label: "Treść", name: "body", widget: "markdown" }
+      - file: "src/content/pages/kontakt.md"
+        label: "Kontakt"
+        name: "kontakt"
+        fields:
+          - { label: "Tytuł strony", name: "title", widget: "string" }
+          - { label: "Slug (URL)", name: "slug", widget: "string" }
+          - { label: "Treść", name: "body", widget: "markdown" }
+      - file: "src/content/pages/regulamin.md"
+        label: "Regulamin"
+        name: "regulamin"
+        fields:
+          - { label: "Tytuł strony", name: "title", widget: "string" }
+          - { label: "Slug (URL)", name: "slug", widget: "string" }
+          - { label: "Treść", name: "body", widget: "markdown" }
+      - file: "src/content/pages/polityka-prywatnosci.md"
+        label: "Polityka prywatności"
+        name: "polityka-prywatnosci"
+        fields:
+          - { label: "Tytuł strony", name: "title", widget: "string" }
+          - { label: "Slug (URL)", name: "slug", widget: "string" }
+          - { label: "Treść", name: "body", widget: "markdown" }
