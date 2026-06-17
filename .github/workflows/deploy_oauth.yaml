@@ -1,12 +1,12 @@
 name: Deploy OAuth Proxy to Vercel
 
 on:
-  # Możesz odkomentować poniższe linie, aby wdrażać proxy przy każdym pushu na main
-#  push:
-#    branches: [ main ]
-
   # Pozwala na ręczne odpalenie tego zadania z zakładki "Actions" w GitHubie
   workflow_dispatch:
+
+# Nadajemy uprawnienia do zapisu, aby bot mógł scommitować i wypchnąć plik config.yml
+permissions:
+  contents: write
 
 jobs:
   deploy-oauth-server:
@@ -14,11 +14,15 @@ jobs:
     name: Build & Deploy Decap OAuth Proxy
 
     steps:
-      # 1. Tworzy czysty katalog na nasz mikro-serwer (izolacja od kodu Astro)
+      # 1. Pobranie Twojego repozytorium, aby mieć dostęp do pliku config.yml
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Tworzy czysty katalog na nasz mikro-serwer (izolacja od kodu Astro)
       - name: Setup Proxy Directory
         run: mkdir proxy-app
 
-      # 2. Generuje sprawdzony kod proxy OAuth (bezpośrednio, by uniknąć niedziałających zewnętrznych repo)
+      # 3. Generuje sprawdzony kod proxy OAuth (bezpośrednio)
       - name: Generate OAuth Code
         working-directory: ./proxy-app
         run: |
@@ -96,11 +100,11 @@ jobs:
           }
           EOF
 
-      # 3. Instaluje oficjalne narzędzie Vercel CLI
+      # 4. Instaluje oficjalne narzędzie Vercel CLI
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      # 4. Pobiera powiązanie z Twoim projektem na Vercelu (wymaga VERCEL_ORG_ID i VERCEL_PROJECT_ID w Secrets)
+      # 5. Pobiera powiązanie z Twoim projektem na Vercelu
       - name: Pull Vercel Environment Information
         working-directory: ./proxy-app
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
@@ -108,7 +112,7 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      # 5. Buduje wygenerowany projekt
+      # 6. Buduje wygenerowany projekt proxy
       - name: Build Project Artifacts
         working-directory: ./proxy-app
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
@@ -116,13 +120,27 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      # 6. Wdraża serwer na Vercel i bezpiecznie wstrzykuje sekrety GitHuba ze środowiska
-      - name: Deploy to Vercel
+      # 7. Wdraża serwer na Vercel, wyciąga URL i zapisuje do zmiennej środowiskowej
+      - name: Deploy to Vercel and Capture URL
         working-directory: ./proxy-app
-        run: >
-          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-          -e OAUTH_GITHUB_CLIENT_ID=${{ secrets.CMS_GITHUB_CLIENT_ID }}
-          -e OAUTH_GITHUB_CLIENT_SECRET=${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}
+        run: |
+          PROXY_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} -e OAUTH_GITHUB_CLIENT_ID=${{ secrets.CMS_GITHUB_CLIENT_ID }} -e OAUTH_GITHUB_CLIENT_SECRET=${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }})
+          echo "Wygenerowany adres proxy to: $PROXY_URL"
+          echo "PROXY_URL=$PROXY_URL" >> $GITHUB_ENV
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # 8. Automatycznie podmienia linijkę base_url w pobranym repozytorium Astro
+      - name: Inject Proxy URL into Decap Config
+        run: |
+          sed -i "s|base_url: .*|base_url: ${PROXY_URL}|" public/admin/config.yml
+
+      # 9. Zapisuje zaktualizowany config.yml z powrotem na GitHuba
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/admin/config.yml
+          git commit -m "chore: auto-update OAuth proxy URL [skip ci]" || echo "Brak zmian do scommitowania"
+          git push
