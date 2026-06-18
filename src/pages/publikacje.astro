@@ -35,9 +35,11 @@ const sortedPublications = allPublications.sort(
             </p>
           </div>
         ) : (
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {sortedPublications.map((publication) => (
-              <PublicationCard publication={publication} />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {sortedPublications.map((publication, index) => (
+              <div class={index % 3 === 2 ? 'md:col-span-2' : ''}>
+                <PublicationCard publication={publication} fullWidth={index % 3 === 2} />
+              </div>
             ))}
           </div>
         )
