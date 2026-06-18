@@ -3,6 +3,7 @@ interface ChatMessage {
   text: string;
   isDelta?: boolean;
   isComplete?: boolean;
+  isStart?: boolean;
 }
 
 interface ClientConfig {
@@ -102,7 +103,16 @@ class ElevenLabsClient {
           } else if (data.type === 'agent_chat_response_part') {
             const textPart = data.text_response_part;
             if (textPart) {
-              if (textPart.type === 'delta' && textPart.text) {
+              if (textPart.type === 'start') {
+                // Reset accumulator for new response
+                if (this._config.onMessage) {
+                  this._config.onMessage({
+                    role: 'agent',
+                    text: '',
+                    isStart: true,
+                  });
+                }
+              } else if (textPart.type === 'delta' && textPart.text) {
                 // Accumulate delta text
                 if (this._config.onMessage) {
                   this._config.onMessage({
@@ -334,6 +344,12 @@ class ChatUI {
   }
 
   _handleAgentMessage(message: ChatMessage): void {
+    // Check if this is a start event (from agent_chat_response_part)
+    if (message.isStart) {
+      this._currentAgentMessage = ''; // Reset accumulator for new response
+      return;
+    }
+
     // Check if this is a delta part (from agent_chat_response_part)
     if (message.isDelta) {
       this._currentAgentMessage += message.text;
