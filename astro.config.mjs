@@ -12,7 +12,7 @@ export default defineConfig({
     markdoc(),
   ],
   build: {
-    inlineStylesheets: 'auto',
+    inlineStylesheets: 'always',
   },
   compressHTML: true,
   vite: {
