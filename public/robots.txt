@@ -7,7 +7,7 @@ Allow: /
 Sitemap: https://eduacademy.pl/sitemap-index.xml
 
 # Disallow specific paths if needed
-# Disallow: /admin/
+Disallow: /admin/
 # Disallow: /api/
 
 # Crawl-delay (optional, respectful crawling)
