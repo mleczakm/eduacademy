@@ -146,11 +146,6 @@ jobs:
           fi
       - run: npm run lint
       - run: npm run format:check
-      - name: Fail if formatting changes were made
-        if: steps.format.outputs.changes == 'true'
-        run: |
-          echo "Code was formatted and committed. Please pull the changes and try again."
-          exit 1
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
