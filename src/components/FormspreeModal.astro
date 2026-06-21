@@ -19,7 +19,7 @@ const modalTitle = courseTitle ? 'Zarezerwuj miejsce na zajęcia' : 'Zarezerwuj 
     <h3 class="text-2xl font-bold text-slate-800 mb-4">{modalTitle}</h3>
 
     <!-- Integracja Formspree -->
-    <form action="https://formspree.io/f/TWOJ_ID_FORMSPREE" method="POST" class="space-y-4">
+    <form action="https://formspree.io/f/meebjbol" method="POST" class="space-y-4">
       <!-- Ukryte pole z nazwą kursu (automatyczne przypisanie) -->
       {courseTitle && <input type="hidden" name="Szkolenie" value={courseTitle} />}
 
