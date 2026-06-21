@@ -55,7 +55,7 @@ Serwis może wykorzystywać pliki cookies w celu zapewnienia prawidłowego dzia�
 
 ## Kontakt
 
-W sprawach związanych z ochroną danych osobowych skontaktuj się z nami: zapisy@futureedu.pl.
+W sprawach związanych z ochroną danych osobowych zarezerwuj 15-minutową rozmowę: zapisy@futureedu.pl.
 
 ---
 

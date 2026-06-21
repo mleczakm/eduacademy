@@ -8,7 +8,7 @@ const { courseTitle } = Astro.props;
 const defaultMessage = courseTitle
   ? `Jestem zainteresowana/-y kursem "${courseTitle}", proszę o kontakt w sprawie rejestracji na zajęcia.`
   : '';
-const modalTitle = courseTitle ? 'Zapisz się na zajęcia' : 'Formularz kontaktowy';
+const modalTitle = courseTitle ? 'Zarezerwuj miejsce na zajęcia' : 'Zarezerwuj 15-minutową rozmowę';
 ---
 
 <div
@@ -55,7 +55,7 @@ const modalTitle = courseTitle ? 'Zapisz się na zajęcia' : 'Formularz kontakto
         type="submit"
         class="w-full bg-brandPrimary hover:bg-brandPrimaryDark text-white font-bold py-3.5 rounded-xl transition shadow-md"
       >
-        Wyślij zgłoszenie
+        Zarezerwuj rozmowę
       </button>
     </form>
     <button

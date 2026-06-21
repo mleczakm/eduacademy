@@ -30,4 +30,4 @@ Pracujemy w małych grupach, co pozwala na indywidualne podejście do każdego d
 
 ## Kontakt
 
-Masz pytania? Skontaktuj się z nami - chętnie pomożemy!
+Masz pytania? Zarezerwuj 15-minutową rozmowę z naszym ekspertem - chętnie pomożemy!

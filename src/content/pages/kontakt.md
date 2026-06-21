@@ -5,7 +5,7 @@ slug: 'kontakt'
 
 # Kontakt z Future Edu Academy
 
-Masz pytania? Chętnie pomożemy! Skontaktuj się z nami.
+Masz pytania? Chętnie pomożemy! Zarezerwuj 15-minutową rozmowę z naszym ekspertem.
 
 ## Dane kontaktowe
 
@@ -21,7 +21,7 @@ Masz pytania? Chętnie pomożemy! Skontaktuj się z nami.
 
 ## Jak się zapisać?
 
-Najprostszym sposobem jest wypełnienie formularza kontaktowego na stronie wybranego szkolenia. Możesz też wysłać nam e-mail lub zadzwonić.
+Najprostszym sposobem jest wypełnienie formularza zapisu na stronie wybranego szkolenia. Możesz też zarezerwować 15-minutową rozmowę telefoniczną lub wysłać nam e-mail.
 
 ## Social media
 

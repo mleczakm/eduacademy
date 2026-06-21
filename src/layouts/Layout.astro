@@ -175,7 +175,7 @@ const isPublicationsPage = currentPath === '/publikacje';
     >
       <div class="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl">
         <h3 id="modal-title" class="text-2xl font-bold text-slate-800 mb-4">
-          Formularz kontaktowy
+          Zarezerwuj 15-minutową rozmowę
         </h3>
 
         <!-- Integration with Formspree -->
@@ -223,7 +223,7 @@ const isPublicationsPage = currentPath === '/publikacje';
             type="submit"
             class="w-full bg-brandPrimary hover:bg-brandPrimaryDark text-white font-bold py-3.5 rounded-xl transition shadow-md"
           >
-            Wyślij zgłoszenie
+            Zarezerwuj rozmowę
           </button>
         </form>
         <button
@@ -253,7 +253,7 @@ const isPublicationsPage = currentPath === '/publikacje';
         const messageArea = document.getElementById('modal-message') as HTMLTextAreaElement;
 
         if (modal && modalTitle && courseInput && messageArea) {
-          modalTitle.textContent = 'Zapisz się na zajęcia';
+          modalTitle.textContent = 'Zarezerwuj miejsce na zajęcia';
           courseInput.value = courseTitle;
           messageArea.placeholder = `Jestem zainteresowana/-y kursem "${courseTitle}", proszę o kontakt w sprawie rejestracji na zajęcia.`;
           messageArea.value = messageArea.placeholder;
