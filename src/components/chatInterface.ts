@@ -1,3 +1,5 @@
+import { ElevenLabsTextChatClient } from '@mleczakm/elevenlabs-text-chat';
+
 interface ChatMessage {
   role: 'user' | 'agent';
   text: string;
@@ -8,7 +10,6 @@ interface ChatMessage {
 
 interface ClientConfig {
   agentId: string;
-  apiKey: string | null;
   onMessage: (message: ChatMessage) => void;
   onStatusChange: (status: string) => void;
   onError: (error: string) => void;
@@ -22,234 +23,74 @@ if (!chatId) {
 }
 
 class ElevenLabsClient {
-  _ws: WebSocket | null;
-  _agentId: string;
-  _apiKey: string | null;
+  _client: ElevenLabsTextChatClient;
   _config: ClientConfig;
   _status: string;
-  _reconnectAttempts: number;
-  _maxReconnectAttempts: number;
-  _reconnectDelay: number;
+  _needsContext: boolean;
 
   constructor(config: ClientConfig) {
-    this._ws = null;
-    this._agentId = config.agentId;
-    this._apiKey = config.apiKey;
     this._config = config;
     this._status = 'disconnected';
-    this._reconnectAttempts = 0;
-    this._maxReconnectAttempts = 3;
-    this._reconnectDelay = 1000;
+    this._needsContext = true;
+    this._client = new ElevenLabsTextChatClient({
+      agentId: config.agentId,
+      onStatusChange: (status) => {
+        this._status = status;
+        if (status === 'disconnected') this._needsContext = true;
+        this._config.onStatusChange(status);
+      },
+      onEvent: (event) => {
+        if (event.type === 'response_start') {
+          this._config.onMessage({ role: 'agent', text: '', isStart: true });
+        } else if (event.type === 'response_delta') {
+          this._config.onMessage({ role: 'agent', text: event.text, isDelta: true });
+        } else if (event.type === 'response_complete') {
+          this._config.onMessage({ role: 'agent', text: '', isComplete: true });
+        } else if (event.type === 'response') {
+          this._config.onMessage({ role: 'agent', text: event.text, isComplete: true });
+        } else if (event.type === 'agent_error' || event.type === 'transport_error') {
+          const error = event.error instanceof Error ? event.error.message : String(event.error);
+          this._config.onError(error);
+        }
+      },
+    });
   }
 
-  _setStatus(status: string): void {
-    this._status = status;
-    if (this._config.onStatusChange) {
-      this._config.onStatusChange(status);
+  async connect(): Promise<void> {
+    if (!(await this._client.connect())) {
+      throw new Error('Unable to connect to the public agent');
     }
   }
 
-  connect(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (
-        this._ws &&
-        (this._ws.readyState === WebSocket.CONNECTING || this._ws.readyState === WebSocket.OPEN)
-      ) {
-        resolve();
-        return;
-      }
-
-      this._setStatus('connecting');
-
-      const wsUrl = 'wss://api.elevenlabs.io/v1/convai/conversation?agent_id=' + this._agentId;
-      this._ws = new WebSocket(wsUrl);
-
-      this._ws.onopen = () => {
-        console.log('WebSocket connected');
-        this._setStatus('connected');
-        this._reconnectAttempts = 0;
-
-        // Send conversation history as contextual update to maintain context
-        this._sendContextualUpdate();
-
-        resolve();
-      };
-
-      this._ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          console.log('WebSocket message received:', data);
-
-          // Handle different response types from ElevenLabs
-          if (data.type === 'agent_response') {
-            const content =
-              data.agent_response_event?.text || data.content || data.text || data.message;
-            if (content && this._config.onMessage) {
-              this._config.onMessage({
-                role: 'agent',
-                text: content,
-                isComplete: true,
-              });
-            }
-          } else if (data.type === 'conversation_done') {
-            const content = data.content || data.text || data.message;
-            if (content && this._config.onMessage) {
-              this._config.onMessage({
-                role: 'agent',
-                text: content,
-                isComplete: true,
-              });
-            }
-          } else if (data.type === 'agent_chat_response_part') {
-            const textPart = data.text_response_part;
-            if (textPart) {
-              if (textPart.type === 'start') {
-                // Reset accumulator for new response
-                if (this._config.onMessage) {
-                  this._config.onMessage({
-                    role: 'agent',
-                    text: '',
-                    isStart: true,
-                  });
-                }
-              } else if (textPart.type === 'delta' && textPart.text) {
-                // Accumulate delta text
-                if (this._config.onMessage) {
-                  this._config.onMessage({
-                    role: 'agent',
-                    text: textPart.text,
-                    isDelta: true,
-                  });
-                }
-              } else if (textPart.type === 'stop') {
-                // Signal that the response is complete
-                if (this._config.onMessage) {
-                  this._config.onMessage({
-                    role: 'agent',
-                    text: '',
-                    isComplete: true,
-                  });
-                }
-              }
-            }
-          } else if (data.type === 'audio' || data.type === 'text') {
-            const content = data.content || data.text || data.message;
-            if (content && this._config.onMessage) {
-              this._config.onMessage({
-                role: 'agent',
-                text: content,
-              });
-            }
-          } else if (data.type === 'error') {
-            console.error('ElevenLabs error:', data);
-            if (this._config.onError) {
-              this._config.onError(data.error || data.message || 'Unknown error');
-            }
-          } else {
-            console.log('Unhandled message type:', data.type, data);
-          }
-        } catch (e) {
-          console.error('Failed to parse WebSocket message:', e);
-          console.error('Raw message:', event.data);
-        }
-      };
-
-      this._ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        this._setStatus('error');
-        if (this._config.onError) {
-          this._config.onError('Connection error');
-        }
-        reject(error);
-      };
-
-      this._ws.onclose = (event) => {
-        console.log('WebSocket closed, code:', event.code, 'reason:', event.reason);
-        this._setStatus('disconnected');
-      };
-    });
+  async sendMessage(text: string): Promise<void> {
+    const context = this._needsContext ? this._loadContext() : undefined;
+    if (!(await this._client.send(text, { context }))) {
+      throw new Error('Unable to send the message');
+    }
+    this._needsContext = false;
   }
 
-  sendMessage(text: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.connect()
-        .then(() => {
-          if (!this._ws || this._ws.readyState !== WebSocket.OPEN) {
-            reject(new Error('WebSocket is not connected'));
-            return;
-          }
-
-          // Send conversation initiation message with text_only config (matching React client)
-          const configMessage = {
-            type: 'conversation_initiation_client_data',
-            conversation_config_override: {
-              agent: {},
-              tts: {},
-              conversation: {
-                text_only: true,
-              },
-            },
-            source_info: {
-              source: 'react_sdk',
-              version: '1.6.6',
-            },
-          };
-
-          // Send user message
-          const userMessage = {
-            type: 'user_message',
-            text: text,
-          };
-
-          console.log('Sending config:', configMessage);
-          console.log('Sending message:', userMessage);
-
-          this._ws.send(JSON.stringify(configMessage));
-          this._ws.send(JSON.stringify(userMessage));
-          resolve();
-        })
-        .catch((error) => {
-          console.error('Failed to send message:', error);
-          if (this._config.onError) {
-            this._config.onError('Failed to send message');
-          }
-          reject(error);
-        });
-    });
+  _loadContext(): string | undefined {
+    try {
+      const saved = localStorage.getItem('chat_history');
+      if (!saved) return undefined;
+      const messages = JSON.parse(saved) as ChatMessage[];
+      if (messages.length === 0) return undefined;
+      return (
+        'Previous conversation context:\n' +
+        messages
+          .map((message) => (message.role === 'user' ? 'User: ' : 'Assistant: ') + message.text)
+          .join('\n')
+      );
+    } catch (error) {
+      console.error('Failed to load chat context:', error);
+      return undefined;
+    }
   }
 
   disconnect(): void {
-    if (this._ws) {
-      this._ws.close();
-      this._ws = null;
-    }
-    this._setStatus('disconnected');
-  }
-
-  _sendContextualUpdate(): void {
-    const savedHistory = localStorage.getItem('chat_history');
-    if (savedHistory) {
-      try {
-        const messages = JSON.parse(savedHistory) as ChatMessage[];
-        if (messages.length > 0) {
-          const contextText = messages
-            .map((m: ChatMessage) => {
-              return (m.role === 'user' ? 'User: ' : 'Assistant: ') + m.text;
-            })
-            .join('\n');
-
-          const contextualUpdate = {
-            type: 'contextual_update',
-            text: 'Previous conversation context:\n' + contextText,
-          };
-
-          console.log('Sending contextual update:', contextualUpdate);
-          this._ws.send(JSON.stringify(contextualUpdate));
-        }
-      } catch (e) {
-        console.error('Failed to send contextual update:', e);
-      }
-    }
+    this._needsContext = true;
+    this._client.close();
   }
 
   getStatus(): string {
@@ -284,7 +125,6 @@ class ChatUI {
     this._currentAgentMessage = ''; // Accumulate delta parts
     this._client = new ElevenLabsClient({
       agentId: AGENT_ID,
-      apiKey: null, // Add your API key here if needed
       onMessage: this._handleAgentMessage.bind(this),
       onStatusChange: this._handleStatusChange.bind(this),
       onError: function (error: string) {
